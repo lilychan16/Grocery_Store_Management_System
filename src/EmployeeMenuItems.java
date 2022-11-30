@@ -10,19 +10,19 @@ import java.util.Scanner;
  */
 public class EmployeeMenuItems {
 
-  EmployeeOperations employeeOperations;
+  WarehouseManagerOperations warehouseManagerOperations;
+  CashierCleanerOperations cashierCleanerOperations;
 
   /**
    * Constructor for EmployeeMenuItems class.
-   * @param employeeOperations an object from EmployeeOperations class
+   * @param warehouseManagerOperations an object from EmployeeOperations class
    */
-  public EmployeeMenuItems(EmployeeOperations employeeOperations) {
-    this.employeeOperations = employeeOperations;
+  public EmployeeMenuItems(WarehouseManagerOperations warehouseManagerOperations,
+                           CashierCleanerOperations cashierCleanerOperations) {
+    this.warehouseManagerOperations = warehouseManagerOperations;
+    this.cashierCleanerOperations = cashierCleanerOperations;
   }
 
-  public EmployeeMenuItems() {
-
-  }
 
   /**
    * Print employee-end login menu in console and then print more employee menu items
@@ -197,35 +197,35 @@ public class EmployeeMenuItems {
 
       switch(warehouse_manager_menu_input) {
         case "1":
-          employeeOperations.show_all_products(con);
+          warehouseManagerOperations.show_all_products(con);
           this.employee_after_result_menu(con, sc, employee_id, employee_type);
 
         case "2":
-          employeeOperations.employee_look_up_product_by_id(con, sc);
+          warehouseManagerOperations.employee_look_up_product_by_id(con, sc);
           this.employee_after_result_menu(con, sc, employee_id, employee_type);
 
         case "3":
-          employeeOperations.employee_look_up_product_by_name(con, sc);
+          warehouseManagerOperations.employee_look_up_product_by_name(con, sc);
           this.employee_after_result_menu(con, sc, employee_id, employee_type);
 
         case "4":
-          employeeOperations.add_new_product(con, sc, employee_id);
+          warehouseManagerOperations.add_new_product(con, sc, employee_id);
           this.employee_after_result_menu(con, sc, employee_id, employee_type);
 
         case "5":
-          employeeOperations.update_product_price_by_id(con, sc);
+          warehouseManagerOperations.update_product_price_by_id(con, sc);
           this.employee_after_result_menu(con, sc, employee_id, employee_type);
 
         case "6":
-          employeeOperations.update_product_stock_by_id(con, sc);
+          warehouseManagerOperations.update_product_stock_by_id(con, sc);
           this.employee_after_result_menu(con, sc, employee_id, employee_type);
 
         case "7":
-          employeeOperations.delete_product_by_id(con, sc);
+          warehouseManagerOperations.delete_product_by_id(con, sc);
           this.employee_after_result_menu(con, sc, employee_id, employee_type);
 
         case "8":
-          employeeOperations.add_new_store_area(con, sc);
+          warehouseManagerOperations.add_new_store_area(con, sc);
           this.employee_after_result_menu(con, sc, employee_id, employee_type);
 
         case "9":
@@ -268,7 +268,7 @@ public class EmployeeMenuItems {
 
       switch (cashier_menu_input) {
         case "1":
-          employeeOperations.cashier_assigned_counter(con, employee_id);
+          cashierCleanerOperations.cashier_assigned_counter(con, employee_id);
           this.employee_after_result_menu(con, sc, employee_id, employee_type);
 
         case "2":
@@ -311,7 +311,7 @@ public class EmployeeMenuItems {
 
       switch (cleaner_menu_input) {
         case "1":
-          employeeOperations.cleaner_assigned_area(con, employee_id);
+          cashierCleanerOperations.cleaner_assigned_area(con, employee_id);
           this.employee_after_result_menu(con, sc, employee_id, employee_type);
 
         case "2":

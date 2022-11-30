@@ -46,8 +46,10 @@ public class GroceryStoreApp {
    */
   public void main_menu(Connection con, Scanner sc) throws Exception {
 
-    EmployeeOperations employeeOperations = new EmployeeOperations();
-    EmployeeMenuItems employeeMenu = new EmployeeMenuItems(employeeOperations);
+    WarehouseManagerOperations warehouseManagerOperations = new WarehouseManagerOperations();
+    CashierCleanerOperations cashierCleanerOperations = new CashierCleanerOperations();
+    EmployeeMenuItems employeeMenu = new EmployeeMenuItems(warehouseManagerOperations,
+                                                            cashierCleanerOperations);
 
     String user_type = "";
 
