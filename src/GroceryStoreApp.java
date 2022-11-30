@@ -3,6 +3,10 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Scanner;
 
+/**
+ * Public class to create a connection to MySQL database,
+ * start point to run the application by printing the main menu.
+ */
 public class GroceryStoreApp {
 
   /**
@@ -42,7 +46,7 @@ public class GroceryStoreApp {
    */
   public void main_menu(Connection con, Scanner sc) throws Exception {
 
-    EmployeeSQLOperations employeeOperations = new EmployeeSQLOperations();
+    EmployeeOperations employeeOperations = new EmployeeOperations();
     EmployeeMenuItems employeeMenu = new EmployeeMenuItems(employeeOperations);
 
     String user_type = "";

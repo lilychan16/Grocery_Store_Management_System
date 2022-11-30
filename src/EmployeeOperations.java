@@ -1,0 +1,586 @@
+import java.sql.CallableStatement;
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Scanner;
+
+public class EmployeeOperations {
+
+  public void show_all_products(Connection con) throws SQLException {
+
+    System.out.println("\nPrint all products:");
+
+    CallableStatement cs_all_products = con.prepareCall(
+            "{call queryProductAll()}"
+    );
+
+    ResultSet rs_all_products = cs_all_products.executeQuery();
+
+    this.print_formatted_product_table(rs_all_products);
+
+    rs_all_products.close();
+    cs_all_products.close();
+  }
+
+
+  public String employee_look_up_product_by_id(Connection con, Scanner sc) throws SQLException {
+
+    String product_id = this.validate_product_id_input(con, sc);
+
+    System.out.println("\nPrint product information:");
+
+    CallableStatement cs_product_by_id = con.prepareCall(
+            "{call queryProductByIdEmployeeVersion(?)}"
+    );
+
+    cs_product_by_id.setInt(1, Integer.parseInt(product_id));
+
+    ResultSet rs_product_by_id = cs_product_by_id.executeQuery();
+
+    this.print_formatted_product_table(rs_product_by_id);
+
+    rs_product_by_id.close();
+    cs_product_by_id.close();
+
+    return product_id;
+  }
+
+
+  public String validate_product_id_input(Connection con, Scanner sc) throws SQLException {
+
+    String product_id = "";
+
+    ArrayList<String> product_id_list = new ArrayList<>();
+
+    CallableStatement cs_product_all = con.prepareCall(
+            "{call queryProductAll()}"
+    );
+
+    ResultSet rs_product_all = cs_product_all.executeQuery();
+
+    while (rs_product_all.next()) {
+      product_id_list.add(Integer.toString(rs_product_all.getInt(1)));
+    }
+
+    System.out.print("\nPlease enter product id: ");
+
+    if (sc.hasNext()) {
+      product_id = sc.next();
+    }
+
+    while (!product_id_list.contains(product_id)) {
+      System.out.println("You entered invalid input. Please re-enter product id or 0 to quit");
+      System.out.print("Please enter product id: ");
+      if (sc.hasNext()) {
+        product_id = sc.next();
+
+        if (product_id.equals("0")) {
+          System.exit(0);
+        }
+      }
+    }
+
+    return product_id;
+  }
+
+
+  public void employee_look_up_product_by_name(Connection con, Scanner sc) throws SQLException {
+
+    String product_name = "";
+
+    ArrayList<String> product_name_list = new ArrayList<>();
+
+    CallableStatement cs_product_all = con.prepareCall(
+            "{call queryProductAll()}"
+    );
+
+    ResultSet rs_product_all = cs_product_all.executeQuery();
+
+    while (rs_product_all.next()) {
+      product_name_list.add(rs_product_all.getString(4).toLowerCase());
+    }
+
+    System.out.print("\nPlease enter product name: ");
+
+    if (sc.hasNextLine()) {
+      sc.nextLine();
+      // Since sc.next() was called right before this method,
+      // there was a new line ('\n') which next() did not consume.
+      // We need to first use an extra call to nextLine() to consume the '\n',
+      // before calling nextLine() to get the product name.
+      // See: https://stackoverflow.com/questions/23450524/java-scanner-doesnt-wait-for-user-input
+      product_name = sc.nextLine();
+      // since product name input may be a string with spaces,
+      // we use nextLine() method instead of next() to read the whole line
+    }
+
+    while (!product_name_list.contains(product_name.toLowerCase())) {
+      System.out.println("You entered invalid input. Please re-enter product name or 0 to quit");
+      System.out.print("Please enter product name: ");
+      if (sc.hasNextLine()) {
+        product_name = sc.nextLine();
+
+        if (product_name.equals("0")) {
+          System.exit(0);
+        }
+      }
+    }
+
+    System.out.println("\nPrint product information:");
+
+    CallableStatement cs_product_by_name = con.prepareCall(
+            "{call queryProductByNameEmployeeVersion(?)}"
+    );
+
+    cs_product_by_name.setString(1, product_name);
+
+    ResultSet rs_product_by_name = cs_product_by_name.executeQuery();
+
+    this.print_formatted_product_table(rs_product_by_name);
+
+    rs_product_by_name.close();
+    cs_product_by_name.close();
+  }
+
+
+  public void add_new_product(Connection con, Scanner sc, String employee_id)
+                                                                  throws SQLException {
+
+    String product_name = "";
+    String category_name = "";
+    String area_id_input;
+    String warehouse_manager_id_input = "";
+    double product_price;
+    int product_stock;
+    int area_id = 0;
+    int warehouse_manager_id;
+
+    ArrayList<String> category_list;
+    Map<Integer, String> area_map;
+
+    System.out.print("\nPlease enter product name: ");
+
+    if (sc.hasNextLine()) {
+      sc.nextLine();
+      product_name = sc.nextLine();
+    }
+
+    System.out.print("\nPlease enter product price, "
+            + "price < 0 will automatically be set to 0: ");
+
+    product_price = this.validate_product_price_input(sc);
+
+    System.out.print("\nPlease enter product stock, "
+            + "stock < 0 will automatically be set to 0: ");
+
+    product_stock = this.validate_product_stock_input(sc);
+
+    category_list = this.get_category(con);
+
+    System.out.print("\nPlease enter a category based on the category table above: ");
+
+    if (sc.hasNextLine()) {
+      category_name = sc.nextLine();
+    }
+
+    while (!category_list.contains(category_name.toLowerCase())) {
+      System.out.println("\nYou entered invalid input. Please refer to the category table.");
+      System.out.print("Please enter a category based on the category table above: ");
+
+      if (sc.hasNextLine()) {
+        category_name = sc.nextLine();
+      }
+    }
+
+    area_map = this.get_area(con);
+
+    ArrayList<Integer> area_id_list = new ArrayList<>(area_map.keySet());
+
+    System.out.print("\nPlease enter an area id based on the area table above: ");
+
+    if (sc.hasNextLine()) {
+
+      boolean flag = false;
+
+      while (!flag) {
+        try {
+          area_id_input = sc.nextLine();
+          area_id = Integer.parseInt(area_id_input);
+
+          while (!area_id_list.contains(area_id)) {
+            System.out.println("\nYou entered invalid input. Please refer to the area table.");
+            System.out.print("Please enter an area id based on the area table above: ");
+
+            if (sc.hasNextLine()) {
+              area_id_input = sc.nextLine();
+              area_id = Integer.parseInt(area_id_input);
+            }
+          }
+
+          // the area name needs to match the category name when adding a new product
+          while (!area_map.get(area_id).equalsIgnoreCase(category_name)) {
+            System.out.println("\nThe area name does not match the category name. "
+                    + "Please make sure you select the correct area id.");
+            System.out.print("Please enter an area id based on the area table above: ");
+
+            if (sc.hasNextLine()) {
+              area_id_input = sc.nextLine();
+              area_id = Integer.parseInt(area_id_input);
+            }
+          }
+
+          flag = true;
+
+        } catch (NumberFormatException e) {
+          System.out.print("\nYou did not enter a number.");
+          System.out.print("\nPlease enter an area id based on the area table above: ");
+        }
+      }
+    }
+
+    System.out.print("\nPlease enter the warehouse manager id (should be your id): ");
+
+    if (sc.hasNextLine()) {
+      warehouse_manager_id_input = sc.nextLine();
+    }
+
+    while (!warehouse_manager_id_input.equals(employee_id)) {
+      System.out.print("\nYou entered invalid input. Please enter the warehouse manager id "
+              + "(should be your id): ");
+
+      if (sc.hasNextLine()) {
+        warehouse_manager_id_input = sc.nextLine();
+      }
+    }
+
+    warehouse_manager_id = Integer.parseInt(warehouse_manager_id_input);
+
+    CallableStatement cs_insert_product = con.prepareCall(
+                "{call insertProduct(?,?,?,?,?,?)}"
+    );
+
+    cs_insert_product.setDouble(1, product_price);
+    cs_insert_product.setInt(2, product_stock);
+    cs_insert_product.setString(3, product_name);
+    cs_insert_product.setString(4, category_name);
+    cs_insert_product.setInt(5, area_id);
+    cs_insert_product.setInt(6, warehouse_manager_id);
+
+    cs_insert_product.executeUpdate();
+
+    System.out.println("\nSuccessfully added a new product.");
+    System.out.println("\nThe updated product table is as follows:");
+
+    this.show_all_products(con);
+
+    cs_insert_product.close();
+  }
+
+
+  public double validate_product_price_input(Scanner sc) {
+
+    String product_price_input;
+    double product_price = 0;
+
+    if (sc.hasNextLine()) {
+
+      boolean flag = false;
+
+      while (!flag) {
+        try {
+          product_price_input = sc.nextLine();
+          product_price = Double.parseDouble(product_price_input);
+
+          if (product_price < 0) {
+            System.out.print("\nProduct price has been set to 0.\n");
+          }
+
+          flag = true;
+
+        } catch (NumberFormatException e) {
+          System.out.print("\nYou did not enter a number.");
+          System.out.print("\nPlease enter product price, "
+                  + "price < 0 will automatically be set to 0: ");
+        }
+      }
+    }
+
+    return product_price;
+  }
+
+
+  public int validate_product_stock_input(Scanner sc) {
+
+    String product_stock_input;
+    int product_stock = 0;
+
+    if (sc.hasNextLine()) {
+
+      boolean flag = false;
+
+      while (!flag) {
+        try {
+          product_stock_input = sc.nextLine();
+          product_stock = Integer.parseInt(product_stock_input);
+
+          if (product_stock < 0) {
+            System.out.print("\nProduct stock has been set to 0.\n");
+          }
+
+          flag = true;
+
+        } catch (NumberFormatException e) {
+          System.out.print("\nYou did not enter a number.");
+          System.out.print("\nPlease enter product stock, "
+                  + "stock < 0 will automatically be set to 0: ");
+        }
+      }
+    }
+
+    return product_stock;
+  }
+
+
+  public void update_product_price_by_id(Connection con, Scanner sc) throws SQLException {
+
+    String product_id = this.employee_look_up_product_by_id(con, sc);
+
+    System.out.print("\nPlease enter the new price, "
+            + "price < 0 will automatically be set to 0: ");
+
+    sc.nextLine();
+    double new_price = this.validate_product_price_input(sc);
+
+    CallableStatement cs_update_product_price = con.prepareCall(
+              "{call updateProductPriceById(?,?)}"
+    );
+
+    cs_update_product_price.setInt(1, Integer.parseInt(product_id));
+    cs_update_product_price.setDouble(2, new_price);
+
+    cs_update_product_price.executeUpdate();
+
+    System.out.println("\nSuccessfully updated the price.");
+    System.out.println("\nThe updated product information is as follows:");
+
+    CallableStatement cs_updated_product_info = con.prepareCall(
+            "{call queryProductByIdEmployeeVersion(?)}"
+    );
+
+    cs_updated_product_info.setInt(1, Integer.parseInt(product_id));
+
+    ResultSet rs_updated_product_info = cs_updated_product_info.executeQuery();
+
+    this.print_formatted_product_table(rs_updated_product_info);
+
+    cs_update_product_price.close();
+    cs_updated_product_info.close();
+    rs_updated_product_info.close();
+  }
+
+
+  public ArrayList<String> get_category(Connection con) throws SQLException {
+
+    ArrayList<String> category_list = new ArrayList<>();
+
+    CallableStatement cs_category = con.prepareCall(
+            "{call queryCategoryAll()}"
+    );
+
+    ResultSet rs_category = cs_category.executeQuery();
+
+    ResultSetMetaData rsmd_category_table = rs_category.getMetaData();
+
+    String category_table_columns = rsmd_category_table.getColumnName(1);
+    System.out.println();
+    System.out.println(category_table_columns);
+
+    while (rs_category.next()) {
+      category_list.add(rs_category.getString(1).toLowerCase());
+      String out_category = rs_category.getString(1);
+      System.out.println(out_category);
+    }
+
+    rs_category.close();
+    cs_category.close();
+
+    return category_list;
+  }
+
+
+  public Map<Integer, String> get_area(Connection con) throws SQLException {
+
+    Map<Integer, String> area_map = new HashMap<>();
+
+    CallableStatement cs_area = con.prepareCall(
+            "{call queryAreaAll()}"
+    );
+
+    ResultSet rs_area = cs_area.executeQuery();
+
+    ResultSetMetaData rsmd_area_table = rs_area.getMetaData();
+
+    String area_table_columns = String.format("%-20s %-30s",
+            rsmd_area_table.getColumnName(1),
+            rsmd_area_table.getColumnName(2));
+    System.out.println();
+    System.out.println(area_table_columns);
+
+    while (rs_area.next()) {
+      area_map.put(rs_area.getInt(1), rs_area.getString(2));
+      String out_area = String.format("%-20d %-30s",
+              rs_area.getInt(1),
+              rs_area.getString(2));
+      System.out.println(out_area);
+    }
+
+    rs_area.close();
+    cs_area.close();
+
+    return area_map;
+  }
+
+
+  public void print_formatted_product_table(ResultSet rs_product) throws SQLException {
+
+    ResultSetMetaData rsmd_product_table = rs_product.getMetaData();
+
+    String product_table_columns = String.format("%-20s %-20s %-20s %-40s %-30s %-20s %-20s",
+            rsmd_product_table.getColumnName(1),
+            rsmd_product_table.getColumnName(2),
+            rsmd_product_table.getColumnName(3),
+            rsmd_product_table.getColumnName(4),
+            rsmd_product_table.getColumnName(5),
+            rsmd_product_table.getColumnName(6),
+            rsmd_product_table.getColumnName(7));
+    System.out.println(product_table_columns);
+
+    while (rs_product.next()) {
+      String out_product = String.format("%-20d %-20.2f %-20d %-40s %-30s %-20d %-20d",
+              rs_product.getInt(1),
+              rs_product.getDouble(2),
+              rs_product.getInt(3),
+              rs_product.getString(4),
+              rs_product.getString(5),
+              rs_product.getInt(6),
+              rs_product.getInt(7));
+      System.out.println(out_product);
+    }
+  }
+
+
+  public void add_new_store_area(Connection con, Scanner sc) throws SQLException {
+
+    String area_name_input = "";
+    Map<Integer, String> area_map;
+    ArrayList<String> area_name_list = new ArrayList<>();
+
+    System.out.println("\nReview current store area: ");
+
+    area_map = this.get_area(con);
+
+    ArrayList<String> temporary_area_name_list = new ArrayList<>(area_map.values());
+
+    for (String s : temporary_area_name_list) {
+      area_name_list.add(s.toLowerCase());
+    }
+
+    System.out.print("\nPlease enter new area name: ");
+
+    if (sc.hasNextLine()) {
+      sc.nextLine();
+      area_name_input = sc.nextLine();
+    }
+
+    while (area_name_list.contains(area_name_input.toLowerCase())) {
+      System.out.println("\nThe area name already exists.");
+      System.out.print("Please enter a new area name or 0 to quit: ");
+
+      if (sc.hasNextLine()) {
+        area_name_input = sc.nextLine();
+
+        if (area_name_input.equals("0")) {
+          System.exit(0);
+        }
+      }
+    }
+
+    CallableStatement cs_add_area = con.prepareCall(
+                "{call insertStoreAreaByName(?)}"
+    );
+
+    cs_add_area.setString(1, area_name_input);
+
+    cs_add_area.executeUpdate();
+
+    System.out.println("\nSuccessfully added a new store area.");
+    System.out.println("\nThe updated store area table is as follows:");
+
+    this.get_area(con);
+
+    cs_add_area.close();
+  }
+
+
+  /**
+   * Call MySQL database to get the assigned check-out counter information for the cashier.
+   * @param con a connection to the database
+   * @param employee_id an employee id
+   * @throws Exception if any I/O operation in console failed
+   */
+  public void cashier_assigned_counter(Connection con, String employee_id) throws Exception {
+
+    System.out.println("\nCheck-out Counter Information:");
+
+    CallableStatement cs_cashier_counter = con.prepareCall(
+            "{call queryEmployeeSpecialById(?)}"
+    );
+
+    cs_cashier_counter.setInt(1, Integer.parseInt(employee_id));
+
+    ResultSet rs_cashier_counter = cs_cashier_counter.executeQuery();
+
+    if (rs_cashier_counter.next()) {
+      String out_cashier_counter = "Your assigned check-out counter is: counter number " +
+              rs_cashier_counter.getInt(3);
+      System.out.println(out_cashier_counter);
+    }
+
+    rs_cashier_counter.close();
+    cs_cashier_counter.close();
+  }
+
+
+  /**
+   * Call MySQL database to get the assigned cleaning area information for the cleaner.
+   * @param con a connection to the database
+   * @param employee_id an employee id
+   * @throws Exception if any I/O operation in console failed
+   */
+  public void cleaner_assigned_area(Connection con, String employee_id) throws Exception {
+
+    System.out.println("\nCleaning Area Information:");
+
+    CallableStatement cs_cleaning_area = con.prepareCall(
+            "{call queryEmployeeSpecialById(?)}"
+    );
+
+    cs_cleaning_area.setInt(1, Integer.parseInt(employee_id));
+
+    ResultSet rs_cleaning_area = cs_cleaning_area.executeQuery();
+
+    if (rs_cleaning_area.next()) {
+      String out_cleaning_area = "Your assigned cleaning area is: Area " +
+              rs_cleaning_area.getInt(4) +
+              "  "+ rs_cleaning_area.getString(5);
+      System.out.println(out_cleaning_area);
+    }
+
+    rs_cleaning_area.close();
+    cs_cleaning_area.close();
+  }
+}

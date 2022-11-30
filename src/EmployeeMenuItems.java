@@ -5,11 +5,18 @@ import java.sql.ResultSetMetaData;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+/**
+ * Public class to hold all menu items on employee's end
+ */
 public class EmployeeMenuItems {
 
-  private final EmployeeSQLOperations employeeOperations;
+  private final EmployeeOperations employeeOperations;
 
-  public EmployeeMenuItems(EmployeeSQLOperations employeeOperations) {
+  /**
+   * Constructor for EmployeeMenuItems class.
+   * @param employeeOperations an object from EmployeeOperations class
+   */
+  public EmployeeMenuItems(EmployeeOperations employeeOperations) {
     this.employeeOperations = employeeOperations;
   }
 
@@ -84,11 +91,6 @@ public class EmployeeMenuItems {
       employee_id = sc.next();
     }
 
-    System.out.print("Please enter employee password: ");
-    if (sc.hasNext()) {
-      employee_password = sc.next();
-    }
-
     while (!employee_id_list.contains(employee_id)) {
       System.out.println("You entered invalid input. Please re-enter employee id or 0 to quit");
       System.out.print("Please enter employee id: ");
@@ -99,6 +101,11 @@ public class EmployeeMenuItems {
           System.exit(0);
         }
       }
+    }
+
+    System.out.print("Please enter employee password: ");
+    if (sc.hasNext()) {
+      employee_password = sc.next();
     }
 
     // Default password for employee login
@@ -136,11 +143,11 @@ public class EmployeeMenuItems {
 
     // Use if instead of while because only 1 record should be printed for each unique employee id
     if (rs_employee_id.next()) {
-      String out_employee_id = String.format("%-20d %-35s %-30s %-20d",
+      String out_employee_id = String.format("%-20d %-35s %-30s %-20f",
               rs_employee_id.getInt(1),
               rs_employee_id.getString(2),
               rs_employee_id.getString(3),
-              rs_employee_id.getInt(4));
+              rs_employee_id.getDouble(4));
       System.out.println(out_employee_id);
       employee_type = rs_employee_id.getString(3);
     }
@@ -179,7 +186,7 @@ public class EmployeeMenuItems {
       System.out.println("\nPlease select an option:\n1. Show all product data"
               + "\n2. Look up product info by product id\n3. Look up product info by product name"
               + "\n4. Add a new product\n5. Update product price by product id"
-              + "\n6. Update product stock by product id\n7. Delete a product"
+              + "\n6. Update product stock by product id\n7. Delete a product by product id"
               + "\n8. Add a new store area\n9. Go back to employee login menu\n10. Quit");
 
       if (sc.hasNext()) {
@@ -196,16 +203,24 @@ public class EmployeeMenuItems {
           this.employee_after_result_menu(con, sc, employee_id, employee_type);
 
         case "3":
+          employeeOperations.employee_look_up_product_by_name(con, sc);
+          this.employee_after_result_menu(con, sc, employee_id, employee_type);
 
         case "4":
+          employeeOperations.add_new_product(con, sc, employee_id);
+          this.employee_after_result_menu(con, sc, employee_id, employee_type);
 
         case "5":
+          employeeOperations.update_product_price_by_id(con, sc);
+          this.employee_after_result_menu(con, sc, employee_id, employee_type);
 
         case "6":
 
         case "7":
 
         case "8":
+          employeeOperations.add_new_store_area(con, sc);
+          this.employee_after_result_menu(con, sc, employee_id, employee_type);
 
         case "9":
           this.employee_login_menu(con, sc);
@@ -322,7 +337,7 @@ public class EmployeeMenuItems {
     String employee_after_result_input = "";
 
     while (true) {
-      System.out.print("\nPlease select 1 to go back to " + employee_type + " menu, "
+      System.out.print("\nPlease select 1 to go back to " + employee_type + " main menu, "
                       + "or 0 to quit: ");
 
       if (sc.hasNext()) {
