@@ -426,41 +426,6 @@ public class EmployeeOperations {
     String product_id = this.employee_look_up_product_by_id(con, sc);
     String delete_or_not = "";
 
-    /*
-    while (true) {
-      System.out.print("\nPlease enter 1 to confirm deletion, or 0 to quit: ");
-
-      if (sc.hasNext()) {
-        delete_or_not = sc.next();
-      }
-
-      switch(delete_or_not) {
-        case "1":
-          CallableStatement cs_delete_product = con.prepareCall(
-                      "{call deleteProductById(?)}"
-          );
-
-          cs_delete_product.setInt(1, Integer.parseInt(product_id));
-
-          cs_delete_product.executeUpdate();
-
-          System.out.println("\nSuccessfully delete the product.");
-          System.out.println("\nThe updated product table is as follows:");
-
-          this.show_all_products(con);
-
-          cs_delete_product.close();
-
-        case "0":
-          System.exit(0);
-
-        default:
-          System.out.print("\nInvalid input, please re-enter");
-      }
-    }
-
-     */
-
     System.out.print("\nPlease enter 1 to confirm deletion, or 0 to quit: ");
 
     if (sc.hasNext()) {
