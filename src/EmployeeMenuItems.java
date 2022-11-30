@@ -10,7 +10,7 @@ import java.util.Scanner;
  */
 public class EmployeeMenuItems {
 
-  private final EmployeeOperations employeeOperations;
+  EmployeeOperations employeeOperations;
 
   /**
    * Constructor for EmployeeMenuItems class.
@@ -20,6 +20,9 @@ public class EmployeeMenuItems {
     this.employeeOperations = employeeOperations;
   }
 
+  public EmployeeMenuItems() {
+
+  }
 
   /**
    * Print employee-end login menu in console and then print more employee menu items
@@ -156,7 +159,6 @@ public class EmployeeMenuItems {
 
     switch (employee_type) {
       case "warehouse_manager":
-
         this.warehouse_manager_menu(con, sc, employee_id, employee_type);
 
       case "cashier":
@@ -215,8 +217,12 @@ public class EmployeeMenuItems {
           this.employee_after_result_menu(con, sc, employee_id, employee_type);
 
         case "6":
+          employeeOperations.update_product_stock_by_id(con, sc);
+          this.employee_after_result_menu(con, sc, employee_id, employee_type);
 
         case "7":
+          employeeOperations.delete_product_by_id(con, sc);
+          this.employee_after_result_menu(con, sc, employee_id, employee_type);
 
         case "8":
           employeeOperations.add_new_store_area(con, sc);

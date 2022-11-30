@@ -365,7 +365,7 @@ public class EmployeeOperations {
     cs_update_product_price.executeUpdate();
 
     System.out.println("\nSuccessfully updated the price.");
-    System.out.println("\nThe updated product information is as follows:");
+    System.out.println("The updated product information is as follows:");
 
     CallableStatement cs_updated_product_info = con.prepareCall(
             "{call queryProductByIdEmployeeVersion(?)}"
@@ -380,6 +380,123 @@ public class EmployeeOperations {
     cs_update_product_price.close();
     cs_updated_product_info.close();
     rs_updated_product_info.close();
+  }
+
+
+  public void update_product_stock_by_id(Connection con, Scanner sc) throws SQLException {
+
+    String product_id = this.employee_look_up_product_by_id(con, sc);
+
+    System.out.print("\nPlease enter the new stock, "
+            + "stock < 0 will automatically be set to 0: ");
+
+    sc.nextLine();
+    int new_stock = this.validate_product_stock_input(sc);
+
+    CallableStatement cs_update_product_stock = con.prepareCall(
+            "{call updateProductStockById(?,?)}"
+    );
+
+    cs_update_product_stock.setInt(1, Integer.parseInt(product_id));
+    cs_update_product_stock.setInt(2, new_stock);
+
+    cs_update_product_stock.executeUpdate();
+
+    System.out.println("\nSuccessfully updated the stock.");
+    System.out.println("The updated product information is as follows:");
+
+    CallableStatement cs_updated_product_info = con.prepareCall(
+            "{call queryProductByIdEmployeeVersion(?)}"
+    );
+
+    cs_updated_product_info.setInt(1, Integer.parseInt(product_id));
+
+    ResultSet rs_updated_product_info = cs_updated_product_info.executeQuery();
+
+    this.print_formatted_product_table(rs_updated_product_info);
+
+    cs_update_product_stock.close();
+    cs_updated_product_info.close();
+    rs_updated_product_info.close();
+  }
+
+
+  public void delete_product_by_id(Connection con, Scanner sc) throws SQLException {
+
+    String product_id = this.employee_look_up_product_by_id(con, sc);
+    String delete_or_not = "";
+
+    /*
+    while (true) {
+      System.out.print("\nPlease enter 1 to confirm deletion, or 0 to quit: ");
+
+      if (sc.hasNext()) {
+        delete_or_not = sc.next();
+      }
+
+      switch(delete_or_not) {
+        case "1":
+          CallableStatement cs_delete_product = con.prepareCall(
+                      "{call deleteProductById(?)}"
+          );
+
+          cs_delete_product.setInt(1, Integer.parseInt(product_id));
+
+          cs_delete_product.executeUpdate();
+
+          System.out.println("\nSuccessfully delete the product.");
+          System.out.println("\nThe updated product table is as follows:");
+
+          this.show_all_products(con);
+
+          cs_delete_product.close();
+
+        case "0":
+          System.exit(0);
+
+        default:
+          System.out.print("\nInvalid input, please re-enter");
+      }
+    }
+
+     */
+
+    System.out.print("\nPlease enter 1 to confirm deletion, or 0 to quit: ");
+
+    if (sc.hasNext()) {
+      delete_or_not = sc.next();
+
+      if (delete_or_not.equals("0")) {
+        System.exit(0);
+      }
+    }
+
+    while (!delete_or_not.equals("1")) {
+      System.out.print("Invalid input, please enter 1 to confirm deletion, or 0 to quit: ");
+
+      if (sc.hasNext()) {
+        delete_or_not = sc.next();
+
+        if (delete_or_not.equals("0")) {
+          System.exit(0);
+        }
+      }
+    }
+
+    CallableStatement cs_delete_product = con.prepareCall(
+            "{call deleteProductById(?)}"
+    );
+
+    cs_delete_product.setInt(1, Integer.parseInt(product_id));
+
+    cs_delete_product.executeUpdate();
+
+    System.out.println("\nSuccessfully delete the product.");
+    System.out.println("The updated product table is as follows:");
+
+    this.show_all_products(con);
+
+    cs_delete_product.close();
   }
 
 
