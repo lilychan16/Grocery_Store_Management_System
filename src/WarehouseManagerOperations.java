@@ -8,8 +8,16 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
+/**
+ * Public class to store methods to perform operations in warehouse manager menu.
+ */
 public class WarehouseManagerOperations {
 
+  /**
+   * Method to show all products' information.
+   * @param con a connection to the database
+   * @throws SQLException if any SQL operation failed
+   */
   public void show_all_products(Connection con) throws SQLException {
 
     System.out.println("\nPrint all products:");
@@ -27,6 +35,13 @@ public class WarehouseManagerOperations {
   }
 
 
+  /**
+   * Method to look up product information on employee's end by entering a product id.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @return a product id that can be used by other methods
+   * @throws SQLException if any SQL operation failed
+   */
   public String employee_look_up_product_by_id(Connection con, Scanner sc) throws SQLException {
 
     String product_id = this.validate_product_id_input(con, sc);
@@ -50,6 +65,13 @@ public class WarehouseManagerOperations {
   }
 
 
+  /**
+   * Helper method to validate a product id input.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @return a valid product id input
+   * @throws SQLException if any SQL operation failed
+   */
   public String validate_product_id_input(Connection con, Scanner sc) throws SQLException {
 
     String product_id = "";
@@ -88,6 +110,12 @@ public class WarehouseManagerOperations {
   }
 
 
+  /**
+   * Method to look up product information on employee's end by entering a product name.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @throws SQLException if any SQL operation failed
+   */
   public void employee_look_up_product_by_name(Connection con, Scanner sc) throws SQLException {
 
     String product_name = "";
@@ -147,6 +175,13 @@ public class WarehouseManagerOperations {
   }
 
 
+  /**
+   * Method to add a new product to the MySQL database.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @param employee_id a warehouse manager's id
+   * @throws SQLException if any SQL operation failed
+   */
   public void add_new_product(Connection con, Scanner sc, String employee_id)
                                                                   throws SQLException {
 
@@ -281,6 +316,11 @@ public class WarehouseManagerOperations {
   }
 
 
+  /**
+   * Helper method to validate a product price input.
+   * @param sc the scanner to receive user input
+   * @return a valid product price input
+   */
   public double validate_product_price_input(Scanner sc) {
 
     String product_price_input;
@@ -313,6 +353,11 @@ public class WarehouseManagerOperations {
   }
 
 
+  /**
+   * Helper method to validate a product stock input.
+   * @param sc the scanner to receive user input
+   * @return a valid product stock input
+   */
   public int validate_product_stock_input(Scanner sc) {
 
     String product_stock_input;
@@ -345,6 +390,12 @@ public class WarehouseManagerOperations {
   }
 
 
+  /**
+   * Method to update a product's price by entering a product id.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @throws SQLException if any SQL operation failed
+   */
   public void update_product_price_by_id(Connection con, Scanner sc) throws SQLException {
 
     String product_id = this.employee_look_up_product_by_id(con, sc);
@@ -383,6 +434,12 @@ public class WarehouseManagerOperations {
   }
 
 
+  /**
+   * Method to update a product's stock by entering a product id.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @throws SQLException if any SQL operation failed
+   */
   public void update_product_stock_by_id(Connection con, Scanner sc) throws SQLException {
 
     String product_id = this.employee_look_up_product_by_id(con, sc);
@@ -421,6 +478,12 @@ public class WarehouseManagerOperations {
   }
 
 
+  /**
+   * Method to delete a product in the MySQL database by entering a product id.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @throws SQLException if any SQL operation failed
+   */
   public void delete_product_by_id(Connection con, Scanner sc) throws SQLException {
 
     String product_id = this.employee_look_up_product_by_id(con, sc);
@@ -465,6 +528,12 @@ public class WarehouseManagerOperations {
   }
 
 
+  /**
+   * Helper method to get the names of all product categories.
+   * @param con a connection to the database
+   * @return a list of product categories
+   * @throws SQLException if any SQL operation failed
+   */
   public ArrayList<String> get_category(Connection con) throws SQLException {
 
     ArrayList<String> category_list = new ArrayList<>();
@@ -494,6 +563,12 @@ public class WarehouseManagerOperations {
   }
 
 
+  /**
+   * Helper method to get the information of all store areas.
+   * @param con a connection to the database
+   * @return a map to store area information, with area_id as key and area_name as value
+   * @throws SQLException if any SQL operation failed
+   */
   public Map<Integer, String> get_area(Connection con) throws SQLException {
 
     Map<Integer, String> area_map = new HashMap<>();
@@ -527,6 +602,11 @@ public class WarehouseManagerOperations {
   }
 
 
+  /**
+   * Helper method to print a formatted product table in console.
+   * @param rs_product a ResultSet object of all information in the product table
+   * @throws SQLException if any SQL operation failed
+   */
   public void print_formatted_product_table(ResultSet rs_product) throws SQLException {
 
     ResultSetMetaData rsmd_product_table = rs_product.getMetaData();
@@ -555,6 +635,12 @@ public class WarehouseManagerOperations {
   }
 
 
+  /**
+   * Method to add a new store area to the MySQL database.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @throws SQLException if any SQL operation failed
+   */
   public void add_new_store_area(Connection con, Scanner sc) throws SQLException {
 
     String area_name_input = "";

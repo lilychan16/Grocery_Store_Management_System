@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
- * Public class to hold all menu items on employee's end
+ * Public class to hold all menu items on employee's end.
  */
 public class EmployeeMenuItems {
 
@@ -16,6 +16,7 @@ public class EmployeeMenuItems {
   /**
    * Constructor for EmployeeMenuItems class.
    * @param warehouseManagerOperations an object from EmployeeOperations class
+   * @param cashierCleanerOperations an object from CashierCleanerOperations class
    */
   public EmployeeMenuItems(WarehouseManagerOperations warehouseManagerOperations,
                            CashierCleanerOperations cashierCleanerOperations) {
@@ -179,6 +180,25 @@ public class EmployeeMenuItems {
   }
 
 
+  /**
+   * Print warehouse manager menu and then perform an operation in console based on user input.
+   * The allowed operations for a warehouse manager are:
+   *    (1) Show all product data
+   *    (2) Look up product info by product id
+   *    (3) Look up product info by product name
+   *    (4) Add a new product
+   *    (5) Update product price by product id
+   *    (6) Update product stock by product id
+   *    (7) Delete a product by product id
+   *    (8) Add a new store area
+   *    (9) Go back to employee login menu
+   *    (10) Quit
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @param employee_id an employee id
+   * @param employee_type the employee's type based on the employee id
+   * @throws Exception if any I/O operation in console failed
+   */
   public void warehouse_manager_menu(Connection con, Scanner sc, String employee_id,
                                      String employee_type) throws Exception {
 

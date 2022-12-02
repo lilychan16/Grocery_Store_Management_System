@@ -1,6 +1,7 @@
 import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 
 public class CashierCleanerOperations {
 
@@ -8,9 +9,9 @@ public class CashierCleanerOperations {
    * Call MySQL database to get the assigned check-out counter information for the cashier.
    * @param con a connection to the database
    * @param employee_id an employee id
-   * @throws Exception if any I/O operation in console failed
+   * @throws SQLException if any SQL operation failed
    */
-  public void cashier_assigned_counter(Connection con, String employee_id) throws Exception {
+  public void cashier_assigned_counter(Connection con, String employee_id) throws SQLException {
 
     System.out.println("\nCheck-out Counter Information:");
 
@@ -37,9 +38,9 @@ public class CashierCleanerOperations {
    * Call MySQL database to get the assigned cleaning area information for the cleaner.
    * @param con a connection to the database
    * @param employee_id an employee id
-   * @throws Exception if any I/O operation in console failed
+   * @throws SQLException if any SQL operation failed
    */
-  public void cleaner_assigned_area(Connection con, String employee_id) throws Exception {
+  public void cleaner_assigned_area(Connection con, String employee_id) throws SQLException {
 
     System.out.println("\nCleaning Area Information:");
 
