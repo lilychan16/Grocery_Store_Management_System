@@ -10,6 +10,7 @@ import java.util.Scanner;
  */
 public class EmployeeMenuItems {
 
+  StoreManagerOperations storeManagerOperations;
   WarehouseManagerOperations warehouseManagerOperations;
   CashierCleanerOperations cashierCleanerOperations;
 
@@ -18,8 +19,11 @@ public class EmployeeMenuItems {
    * @param warehouseManagerOperations an object from EmployeeOperations class
    * @param cashierCleanerOperations an object from CashierCleanerOperations class
    */
-  public EmployeeMenuItems(WarehouseManagerOperations warehouseManagerOperations,
+  public EmployeeMenuItems(StoreManagerOperations storeManagerOperations,
+                           WarehouseManagerOperations warehouseManagerOperations,
                            CashierCleanerOperations cashierCleanerOperations) {
+
+    this.storeManagerOperations = storeManagerOperations;
     this.warehouseManagerOperations = warehouseManagerOperations;
     this.cashierCleanerOperations = cashierCleanerOperations;
   }
@@ -138,20 +142,22 @@ public class EmployeeMenuItems {
 
     ResultSetMetaData rsmd_employee_table = rs_employee_id.getMetaData();
 
-    String employee_table_columns = String.format("%-20s %-35s %-30s %-20s",
+    String employee_table_columns = String.format("%-20s %-35s %-30s %-30s %-20s",
             rsmd_employee_table.getColumnName(1),
             rsmd_employee_table.getColumnName(2),
             rsmd_employee_table.getColumnName(3),
-            rsmd_employee_table.getColumnName(4));
+            rsmd_employee_table.getColumnName(4),
+            rsmd_employee_table.getColumnName(5));
     System.out.println(employee_table_columns);
 
     // Use if instead of while because only 1 record should be printed for each unique employee id
     if (rs_employee_id.next()) {
-      String out_employee_id = String.format("%-20d %-35s %-30s %-20f",
+      String out_employee_id = String.format("%-20d %-35s %-30s %-30s %-20.2f",
               rs_employee_id.getInt(1),
               rs_employee_id.getString(2),
               rs_employee_id.getString(3),
-              rs_employee_id.getDouble(4));
+              rs_employee_id.getString(4),
+              rs_employee_id.getDouble(5));
       System.out.println(out_employee_id);
       employee_type = rs_employee_id.getString(3);
     }
@@ -159,6 +165,9 @@ public class EmployeeMenuItems {
     System.out.println("\nLogin successfully. You are: " + employee_type);
 
     switch (employee_type) {
+      case "store_manager":
+        this.store_manager_main_menu(con, sc);
+
       case "warehouse_manager":
         this.warehouse_manager_menu(con, sc, employee_id, employee_type);
 
@@ -169,7 +178,8 @@ public class EmployeeMenuItems {
         this.cleaner_menu(con, sc, employee_id, employee_type);
 
       default:
-        System.out.println("Invalid employee type.");
+        System.out.println("Not a valid employee type based on current record. "
+                            + "Please update the employee_menu_type method.");
     }
 
     rs_employee_all.close();
@@ -177,6 +187,170 @@ public class EmployeeMenuItems {
 
     rs_employee_id.close();
     cs_employee_id.close();
+  }
+
+
+  public void store_manager_main_menu(Connection con, Scanner sc) throws Exception {
+
+    String store_manager_main_menu_input = "";
+
+    while (true) {
+      System.out.println("\nPlease select an option:\n1. Manage employee data"
+              + "\n2. Manage customer data\n3. Go back to employee login menu\n4. Quit");
+
+      if (sc.hasNext()) {
+        store_manager_main_menu_input = sc.next();
+      }
+
+      switch (store_manager_main_menu_input) {
+        case "1":
+          this.store_manager_employee_side_menu(con, sc);
+
+        case "2":
+          this.store_manager_customer_side_menu(con, sc);
+
+        case "3":
+          this.employee_login_menu(con, sc);
+
+        case "4":
+          System.exit(0);
+
+        default:
+          System.out.println("\nInvalid input, please re-enter");
+      }
+    }
+  }
+
+
+  public void store_manager_employee_side_menu(Connection con, Scanner sc) throws Exception {
+
+    String store_manager_menu_type = "employee";
+    String store_manager_employee_side_input = "";
+
+    while (true) {
+      System.out.println("\nPlease select an option:\n1. Show all employee data"
+              + "\n2. Look up employee info by employee id"
+              + "\n3. Look up employee info by employee name\n4. Add a new employee"
+              + "\n5. Delete an employee by employee id\n6. Go back to store manager main menu"
+              + "\n7. Quit");
+
+      if (sc.hasNext()) {
+        store_manager_employee_side_input = sc.next();
+      }
+
+      switch (store_manager_employee_side_input) {
+        case "1":
+          storeManagerOperations.show_all_employees(con);
+          this.store_manager_after_result_menu(con, sc, store_manager_menu_type);
+
+        case "2":
+          storeManagerOperations.look_up_employee_by_id(con, sc);
+          this.store_manager_after_result_menu(con, sc, store_manager_menu_type);
+
+        case "3":
+          storeManagerOperations.look_up_employee_by_name(con, sc);
+          this.store_manager_after_result_menu(con, sc, store_manager_menu_type);
+
+        case "4":
+          this.store_manager_add_new_employee_menu(con, sc);
+
+        case "5":
+
+        case "6":
+          this.store_manager_main_menu(con, sc);
+
+        case "7":
+          System.exit(0);
+
+        default:
+          System.out.println("\nInvalid input, please re-enter");
+      }
+    }
+  }
+
+
+  public void store_manager_customer_side_menu(Connection con, Scanner sc) throws Exception {
+
+    String store_manager_menu_type = "customer";
+    String store_manager_customer_side_input = "";
+
+    while (true) {
+      System.out.println("\nPlease select an option:\n1. Show all customer data"
+              + "\n2. Look up customer info by customer id"
+              + "\n3. Look up customer info by customer name\n4. add a new customer"
+              + "\n5. Delete a customer by customer id\n6. Go back to store manager main menu"
+              + "\n7. Quit");
+
+      if (sc.hasNext()) {
+        store_manager_customer_side_input = sc.next();
+      }
+
+      switch (store_manager_customer_side_input) {
+        case "1":
+
+        case "2":
+
+        case "3":
+
+        case "4":
+
+        case "5":
+
+        case "6":
+          this.store_manager_main_menu(con, sc);
+
+        case "7":
+          System.exit(0);
+
+        default:
+          System.out.println("\nInvalid input, please re-enter");
+      }
+    }
+  }
+
+
+  public void store_manager_add_new_employee_menu(Connection con, Scanner sc) throws Exception {
+
+    String store_manager_menu_type = "employee";
+    String add_new_employee_menu_input = "";
+
+    while (true) {
+      System.out.println("\nPlease select an employee type to be added:\n1. Store Manager"
+              + "\n2. Warehouse Manager\n3. Cashier"
+              + "\n4. Cleaner\n5. Go back to store manager - employee management menu"
+              + "\n6. Quit");
+
+      if (sc.hasNext()) {
+        add_new_employee_menu_input = sc.next();
+      }
+
+      switch(add_new_employee_menu_input) {
+        case "1":
+          storeManagerOperations.add_new_employee(con, sc, "store_manager");
+          this.store_manager_after_result_menu(con, sc, store_manager_menu_type);
+
+        case "2":
+          storeManagerOperations.add_new_employee(con, sc, "warehouse_manager");
+          this.store_manager_after_result_menu(con, sc, store_manager_menu_type);
+
+        case "3":
+          storeManagerOperations.add_new_employee(con, sc, "cashier");
+          this.store_manager_after_result_menu(con, sc, store_manager_menu_type);
+
+        case "4":
+          storeManagerOperations.add_new_employee(con, sc, "cleaner");
+          this.store_manager_after_result_menu(con, sc, store_manager_menu_type);
+
+        case "5":
+          this.store_manager_employee_side_menu(con, sc);
+
+        case "6":
+          System.exit(0);
+
+        default:
+          System.out.println("\nInvalid input, please re-enter");
+      }
+    }
   }
 
 
@@ -347,7 +521,44 @@ public class EmployeeMenuItems {
   }
 
 
+  public void store_manager_after_result_menu(Connection con, Scanner sc,
+                                              String store_manager_menu_type) throws Exception {
+
+    String store_manager_after_result_input = "";
+
+    while (true) {
+      System.out.print("\nPlease select 1 to go back to store manager - " + store_manager_menu_type
+              + " management menu, or 0 to quit: ");
+
+      if (sc.hasNext()) {
+        store_manager_after_result_input = sc.next();
+      }
+
+      switch (store_manager_after_result_input) {
+        case "1":
+          if (store_manager_menu_type.equals("employee")) {
+            this.store_manager_employee_side_menu(con, sc);
+          }
+          else if (store_manager_menu_type.equals("customer")) {
+            this.store_manager_customer_side_menu(con, sc);
+          }
+          else {
+            System.out.println("Not a valid store manager menu type based on current record. "
+                    + "Please update the store_manager_after_result_menu method.");
+          }
+
+        case "0":
+          System.exit(0);
+
+        default:
+          System.out.print("\nInvalid input, please re-enter");
+      }
+    }
+  }
+
+
   /**
+   * This method is used by every employee type except store manager.
    * If an employee's menu selection involves calling a SQL procedure, then once it's done,
    * a prompt will show up in console to ask the employee to either go back to the previous menu
    * (which is each employee type's main menu) or quit.
@@ -380,6 +591,10 @@ public class EmployeeMenuItems {
           }
           else if (employee_type.equals("cleaner")) {
             this.cleaner_menu(con, sc, employee_id, employee_type);
+          }
+          else {
+            System.out.println("Not a valid employee type based on current record. "
+                                + "Please update the employee_after_result_menu method.");
           }
 
         case "0":

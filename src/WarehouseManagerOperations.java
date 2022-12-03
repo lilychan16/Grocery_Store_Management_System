@@ -204,13 +204,11 @@ public class WarehouseManagerOperations {
       product_name = sc.nextLine();
     }
 
-    System.out.print("\nPlease enter product price, "
-            + "price < 0 will automatically be set to 0: ");
+    System.out.print("\nPlease enter product price (per lb or unit): ");
 
     product_price = this.validate_product_price_input(sc);
 
-    System.out.print("\nPlease enter product stock, "
-            + "stock < 0 will automatically be set to 0: ");
+    System.out.print("\nPlease enter product stock: ");
 
     product_stock = this.validate_product_stock_input(sc);
 
@@ -343,8 +341,7 @@ public class WarehouseManagerOperations {
 
         } catch (NumberFormatException e) {
           System.out.print("\nYou did not enter a number.");
-          System.out.print("\nPlease enter product price, "
-                  + "price < 0 will automatically be set to 0: ");
+          System.out.print("\nPlease enter product price (per lb or unit): ");
         }
       }
     }
@@ -380,8 +377,7 @@ public class WarehouseManagerOperations {
 
         } catch (NumberFormatException e) {
           System.out.print("\nYou did not enter a number.");
-          System.out.print("\nPlease enter product stock, "
-                  + "stock < 0 will automatically be set to 0: ");
+          System.out.print("\nPlease enter product stock: ");
         }
       }
     }
@@ -400,8 +396,7 @@ public class WarehouseManagerOperations {
 
     String product_id = this.employee_look_up_product_by_id(con, sc);
 
-    System.out.print("\nPlease enter the new price, "
-            + "price < 0 will automatically be set to 0: ");
+    System.out.print("\nPlease enter the new price (per lb or unit): ");
 
     sc.nextLine();
     double new_price = this.validate_product_price_input(sc);
@@ -444,8 +439,7 @@ public class WarehouseManagerOperations {
 
     String product_id = this.employee_look_up_product_by_id(con, sc);
 
-    System.out.print("\nPlease enter the new stock, "
-            + "stock < 0 will automatically be set to 0: ");
+    System.out.print("\nPlease enter the new stock: ");
 
     sc.nextLine();
     int new_stock = this.validate_product_stock_input(sc);
@@ -581,7 +575,7 @@ public class WarehouseManagerOperations {
 
     ResultSetMetaData rsmd_area_table = rs_area.getMetaData();
 
-    String area_table_columns = String.format("%-20s %-30s",
+    String area_table_columns = String.format("%-20s %-20s",
             rsmd_area_table.getColumnName(1),
             rsmd_area_table.getColumnName(2));
     System.out.println();
@@ -589,7 +583,7 @@ public class WarehouseManagerOperations {
 
     while (rs_area.next()) {
       area_map.put(rs_area.getInt(1), rs_area.getString(2));
-      String out_area = String.format("%-20d %-30s",
+      String out_area = String.format("%-20d %-20s",
               rs_area.getInt(1),
               rs_area.getString(2));
       System.out.println(out_area);
