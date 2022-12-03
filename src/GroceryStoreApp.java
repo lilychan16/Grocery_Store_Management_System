@@ -49,9 +49,14 @@ public class GroceryStoreApp {
     StoreManagerOperations storeManagerOperations = new StoreManagerOperations();
     WarehouseManagerOperations warehouseManagerOperations = new WarehouseManagerOperations();
     CashierCleanerOperations cashierCleanerOperations = new CashierCleanerOperations();
+
+    CustomerOperations customerOperations = new CustomerOperations();
+
     EmployeeMenuItems employeeMenu = new EmployeeMenuItems(storeManagerOperations,
                                                             warehouseManagerOperations,
                                                             cashierCleanerOperations);
+
+    CustomerMenuItems customerMenu = new CustomerMenuItems(customerOperations);
 
     String user_type = "";
 
@@ -64,46 +69,10 @@ public class GroceryStoreApp {
 
       switch (user_type) {
         case "1":
-          this.customer_login_menu(con, sc);
+          customerMenu.customer_login_menu(con, sc);
 
         case "2":
           employeeMenu.employee_login_menu(con, sc);
-
-        case "3":
-          System.exit(0);
-
-        default:
-          System.out.println("\nInvalid input, please re-enter");
-      }
-    }
-  }
-
-
-  /**
-   * Print customer-end login menu in console and then print more customer menu items
-   * based on user input.
-   * @param con a connection to the database
-   * @param sc the scanner to receive user input
-   * @throws Exception if any I/O operation in console failed
-   */
-  public void customer_login_menu(Connection con, Scanner sc) throws Exception {
-    String customer_login_input = "";
-
-    while (true) {
-      System.out.println("\nCustomer Login Page:");
-      System.out.println("Please select an option:\n1. Customer Login"
-              + "\n2. Back to User Type Menu\n3. Quit");
-
-      if (sc.hasNext()) {
-        customer_login_input = sc.next();
-      }
-
-      switch (customer_login_input) {
-        case "1":
-          //this.customer_main_menu(sc);
-
-        case "2":
-          this.main_menu(con, sc);
 
         case "3":
           System.exit(0);
