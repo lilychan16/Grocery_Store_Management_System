@@ -13,6 +13,17 @@ import java.util.Scanner;
  */
 public class WarehouseManagerOperations {
 
+  SharedHelperMethods sharedHelperMethods;
+
+  /**
+   * Constructor for WarehouseManagerOperations class.
+   * @param sharedHelperMethods an object from SharedHelperMethods class
+   */
+  public WarehouseManagerOperations(SharedHelperMethods sharedHelperMethods) {
+    this.sharedHelperMethods = sharedHelperMethods;
+  }
+
+
   /**
    * Method to show all products' information.
    * @param con a connection to the database
@@ -28,7 +39,7 @@ public class WarehouseManagerOperations {
 
     ResultSet rs_all_products = cs_all_products.executeQuery();
 
-    this.print_formatted_product_table(rs_all_products);
+    this.print_formatted_product_table_employee(rs_all_products);
 
     rs_all_products.close();
     cs_all_products.close();
@@ -44,7 +55,7 @@ public class WarehouseManagerOperations {
    */
   public String employee_look_up_product_by_id(Connection con, Scanner sc) throws SQLException {
 
-    String product_id = this.validate_product_id_input(con, sc);
+    String product_id = sharedHelperMethods.validate_product_id_input(con, sc);
 
     System.out.println("\nPrint product information:");
 
@@ -56,55 +67,10 @@ public class WarehouseManagerOperations {
 
     ResultSet rs_product_by_id = cs_product_by_id.executeQuery();
 
-    this.print_formatted_product_table(rs_product_by_id);
+    this.print_formatted_product_table_employee(rs_product_by_id);
 
     rs_product_by_id.close();
     cs_product_by_id.close();
-
-    return product_id;
-  }
-
-
-  /**
-   * Helper method to validate a product id input.
-   * @param con a connection to the database
-   * @param sc the scanner to receive user input
-   * @return a valid product id input
-   * @throws SQLException if any SQL operation failed
-   */
-  public String validate_product_id_input(Connection con, Scanner sc) throws SQLException {
-
-    String product_id = "";
-
-    ArrayList<String> product_id_list = new ArrayList<>();
-
-    CallableStatement cs_product_all = con.prepareCall(
-            "{call queryProductAll()}"
-    );
-
-    ResultSet rs_product_all = cs_product_all.executeQuery();
-
-    while (rs_product_all.next()) {
-      product_id_list.add(Integer.toString(rs_product_all.getInt(1)));
-    }
-
-    System.out.print("\nPlease enter product id: ");
-
-    if (sc.hasNext()) {
-      product_id = sc.next();
-    }
-
-    while (!product_id_list.contains(product_id)) {
-      System.out.println("You entered invalid input. Please re-enter product id or 0 to quit");
-      System.out.print("Please enter product id: ");
-      if (sc.hasNext()) {
-        product_id = sc.next();
-
-        if (product_id.equals("0")) {
-          System.exit(0);
-        }
-      }
-    }
 
     return product_id;
   }
@@ -168,7 +134,7 @@ public class WarehouseManagerOperations {
 
     ResultSet rs_product_by_name = cs_product_by_name.executeQuery();
 
-    this.print_formatted_product_table(rs_product_by_name);
+    this.print_formatted_product_table_employee(rs_product_by_name);
 
     rs_product_by_name.close();
     cs_product_by_name.close();
@@ -387,6 +353,39 @@ public class WarehouseManagerOperations {
 
 
   /**
+   * Helper method to print a formatted product table (employee version) in console.
+   * @param rs_product a ResultSet object of all information in the product table
+   * @throws SQLException if any SQL operation failed
+   */
+  public void print_formatted_product_table_employee(ResultSet rs_product) throws SQLException {
+
+    ResultSetMetaData rsmd_product_table = rs_product.getMetaData();
+
+    String product_table_columns = String.format("%-20s %-20s %-20s %-40s %-30s %-20s %-20s",
+            rsmd_product_table.getColumnName(1),
+            rsmd_product_table.getColumnName(2),
+            rsmd_product_table.getColumnName(3),
+            rsmd_product_table.getColumnName(4),
+            rsmd_product_table.getColumnName(5),
+            rsmd_product_table.getColumnName(6),
+            rsmd_product_table.getColumnName(7));
+    System.out.println(product_table_columns);
+
+    while (rs_product.next()) {
+      String out_product = String.format("%-20d %-20.2f %-20d %-40s %-30s %-20d %-20d",
+              rs_product.getInt(1),
+              rs_product.getDouble(2),
+              rs_product.getInt(3),
+              rs_product.getString(4),
+              rs_product.getString(5),
+              rs_product.getInt(6),
+              rs_product.getInt(7));
+      System.out.println(out_product);
+    }
+  }
+
+
+  /**
    * Method to update a product's price by entering a product id.
    * @param con a connection to the database
    * @param sc the scanner to receive user input
@@ -421,7 +420,7 @@ public class WarehouseManagerOperations {
 
     ResultSet rs_updated_product_info = cs_updated_product_info.executeQuery();
 
-    this.print_formatted_product_table(rs_updated_product_info);
+    this.print_formatted_product_table_employee(rs_updated_product_info);
 
     cs_update_product_price.close();
     cs_updated_product_info.close();
@@ -464,7 +463,7 @@ public class WarehouseManagerOperations {
 
     ResultSet rs_updated_product_info = cs_updated_product_info.executeQuery();
 
-    this.print_formatted_product_table(rs_updated_product_info);
+    this.print_formatted_product_table_employee(rs_updated_product_info);
 
     cs_update_product_stock.close();
     cs_updated_product_info.close();
@@ -593,39 +592,6 @@ public class WarehouseManagerOperations {
     cs_area.close();
 
     return area_map;
-  }
-
-
-  /**
-   * Helper method to print a formatted product table in console.
-   * @param rs_product a ResultSet object of all information in the product table
-   * @throws SQLException if any SQL operation failed
-   */
-  public void print_formatted_product_table(ResultSet rs_product) throws SQLException {
-
-    ResultSetMetaData rsmd_product_table = rs_product.getMetaData();
-
-    String product_table_columns = String.format("%-20s %-20s %-20s %-40s %-30s %-20s %-20s",
-            rsmd_product_table.getColumnName(1),
-            rsmd_product_table.getColumnName(2),
-            rsmd_product_table.getColumnName(3),
-            rsmd_product_table.getColumnName(4),
-            rsmd_product_table.getColumnName(5),
-            rsmd_product_table.getColumnName(6),
-            rsmd_product_table.getColumnName(7));
-    System.out.println(product_table_columns);
-
-    while (rs_product.next()) {
-      String out_product = String.format("%-20d %-20.2f %-20d %-40s %-30s %-20d %-20d",
-              rs_product.getInt(1),
-              rs_product.getDouble(2),
-              rs_product.getInt(3),
-              rs_product.getString(4),
-              rs_product.getString(5),
-              rs_product.getInt(6),
-              rs_product.getInt(7));
-      System.out.println(out_product);
-    }
   }
 
 

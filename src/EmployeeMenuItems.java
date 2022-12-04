@@ -18,6 +18,7 @@ public class EmployeeMenuItems {
    * Constructor for EmployeeMenuItems class.
    * @param warehouseManagerOperations an object from EmployeeOperations class
    * @param cashierCleanerOperations an object from CashierCleanerOperations class
+   * @param storeManagerOperations an object from StoreManagerOperations class
    */
   public EmployeeMenuItems(StoreManagerOperations storeManagerOperations,
                            WarehouseManagerOperations warehouseManagerOperations,

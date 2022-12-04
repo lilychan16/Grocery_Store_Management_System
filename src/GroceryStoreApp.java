@@ -46,17 +46,20 @@ public class GroceryStoreApp {
    */
   public void main_menu(Connection con, Scanner sc) throws Exception {
 
+    SharedHelperMethods sharedHelperMethods = new SharedHelperMethods();
+
     StoreManagerOperations storeManagerOperations = new StoreManagerOperations();
-    WarehouseManagerOperations warehouseManagerOperations = new WarehouseManagerOperations();
+    WarehouseManagerOperations warehouseManagerOperations
+                                            = new WarehouseManagerOperations(sharedHelperMethods);
     CashierCleanerOperations cashierCleanerOperations = new CashierCleanerOperations();
 
-    CustomerOperations customerOperations = new CustomerOperations();
+    CustomerOperations customerOperations = new CustomerOperations(sharedHelperMethods);
 
     EmployeeMenuItems employeeMenu = new EmployeeMenuItems(storeManagerOperations,
                                                             warehouseManagerOperations,
                                                             cashierCleanerOperations);
 
-    CustomerMenuItems customerMenu = new CustomerMenuItems(customerOperations);
+    CustomerMenuItems customerMenu = new CustomerMenuItems(customerOperations, sharedHelperMethods);
 
     String user_type = "";
 

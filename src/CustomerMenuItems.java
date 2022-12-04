@@ -10,14 +10,17 @@ import java.util.Scanner;
 public class CustomerMenuItems {
 
   CustomerOperations customerOperations;
+  SharedHelperMethods sharedHelperMethods;
 
   /**
    * Constructor for CustomerMenuItems class.
    * @param customerOperations an object from CustomerOperations class
    */
-  public CustomerMenuItems(CustomerOperations customerOperations) {
+  public CustomerMenuItems(CustomerOperations customerOperations,
+                           SharedHelperMethods sharedHelperMethods) {
 
     this.customerOperations = customerOperations;
+    this.sharedHelperMethods = sharedHelperMethods;
   }
 
 
@@ -131,7 +134,7 @@ public class CustomerMenuItems {
 
     ResultSet rs_customer_id = cs_customer_id.executeQuery();
 
-    customerOperations.print_formatted_customer_table(rs_customer_id);
+    sharedHelperMethods.print_formatted_customer_table(rs_customer_id);
 
     this.customer_menu(con, sc);
 
@@ -162,8 +165,9 @@ public class CustomerMenuItems {
     String customer_menu_input = "";
 
     while (true) {
-      System.out.println("\nPlease select an option:\n1. Look up product info by product id"
-              + "\n2. Look up product info by product name"
+      System.out.println("\nPlease select an option:"
+              + "\n1. Look up product info by product id & Add to cart"
+              + "\n2. Look up product info by product name & Add to cart"
               + "\n3. Redeem points to grocery dollars\n4. Check orders"
               + "\n5. Check cart & Check out\n6. Go back to customer login menu\n7. Quit");
 
@@ -173,14 +177,20 @@ public class CustomerMenuItems {
 
       switch(customer_menu_input) {
         case "1":
+          customerOperations.customer_look_up_product_by_id(con, sc);
+          this.customer_after_result_menu(con, sc);
 
         case "2":
+          customerOperations.customer_look_up_product_by_name(con, sc);
+          this.customer_after_result_menu(con, sc);
 
         case "3":
 
         case "4":
 
         case "5":
+          customerOperations.check_cart_check_out(con, sc);
+          this.customer_after_result_menu(con, sc);
 
         case "6":
           this.customer_login_menu(con, sc);
@@ -194,4 +204,36 @@ public class CustomerMenuItems {
     }
   }
 
+
+  /**
+   * If a customer's menu selection involves calling a SQL procedure, then once it's done,
+   * a prompt will show up in console to ask the customer to either go back to the previous menu
+   * (which is customer's main menu) or quit.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @throws Exception if any I/O operation in console failed
+   */
+  public void customer_after_result_menu(Connection con, Scanner sc) throws Exception {
+
+    String customer_after_result_input = "";
+
+    while (true) {
+      System.out.print("\nPlease select 1 to go back to customer main menu, or 0 to quit: ");
+
+      if (sc.hasNext()) {
+        customer_after_result_input = sc.next();
+      }
+
+      switch (customer_after_result_input) {
+        case "1":
+          this.customer_menu(con, sc);
+
+        case "0":
+          System.exit(0);
+
+        default:
+          System.out.print("\nInvalid input, please re-enter");
+      }
+    }
+  }
 }
