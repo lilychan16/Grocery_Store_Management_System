@@ -19,11 +19,22 @@ public class CustomerOperations {
   LinkedHashMap<Integer, LinkedList<String>> cart = new LinkedHashMap<>();
 
 
+  /**
+   * Constructor for CustomerOperations class.
+   * @param sharedHelperMethods an object from SharedHelperMethods class
+   */
   public CustomerOperations(SharedHelperMethods sharedHelperMethods) {
     this.sharedHelperMethods = sharedHelperMethods;
   }
 
 
+  /**
+   * Method to look up product information on customer's end by entering a product id.
+   * The customer can then decide if the product should be added to the shopping cart.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @throws Exception if any I/O operation in console failed
+   */
   public void customer_look_up_product_by_id(Connection con, Scanner sc) throws Exception {
 
     String add_to_cart_input = "";
@@ -73,6 +84,15 @@ public class CustomerOperations {
   }
 
 
+  /**
+   * Add a product to shopping cart. The cart is maintained by a LinkedHashMap
+   * with product_id as key, and a LinkedList as value to store the product's
+   * desired quantity (index 0) and price (index 1).
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @param product_id a valid product id input
+   * @throws Exception if any I/O operation in console failed
+   */
   public void add_product_to_cart(Connection con, Scanner sc, String product_id) throws Exception {
 
     int stock = 0;
@@ -161,6 +181,14 @@ public class CustomerOperations {
   }
 
 
+  /**
+   * Print a menu to ask if the customer want to add more products to the
+   * shopping cart or not. If yes, print out more menu options for the customer
+   * to select a method to search for more products.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @throws Exception if any I/O operation in console failed
+   */
   public void after_add_to_cart_menu(Connection con, Scanner sc) throws Exception {
 
     boolean flag = false;
@@ -193,6 +221,13 @@ public class CustomerOperations {
   }
 
 
+  /**
+   * Helper function to direct the customer to different methods (by product id or
+   * by product name) to search for more products.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @throws Exception if any I/O operation in console failed
+   */
   public void customer_product_look_up_type(Connection con, Scanner sc) throws Exception {
 
     boolean flag = false;
@@ -225,6 +260,13 @@ public class CustomerOperations {
   }
 
 
+  /**
+   * Method to look up product information on customer's end by entering a product name.
+   * The customer can then decide if the product should be added to the shopping cart.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @throws Exception if any I/O operation in console failed
+   */
   public void customer_look_up_product_by_name(Connection con, Scanner sc) throws Exception {
 
     String product_name = "";
@@ -350,11 +392,17 @@ public class CustomerOperations {
   }
 
 
+  /**
+   * Method to print out products in shopping cart, update the shopping cart, and check out.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @throws Exception if any I/O operation in console failed
+   */
   public void check_cart_check_out(Connection con, Scanner sc) throws Exception {
 
     String check_cart_input = "";
 
-    this.print_cart(con, sc);
+    this.print_cart();
 
     boolean flag = false;
 
@@ -385,7 +433,10 @@ public class CustomerOperations {
   }
 
 
-  public void print_cart(Connection con, Scanner sc) {
+  /**
+   * Helper method to format the shopping cart.
+   */
+  public void print_cart() {
 
     String product_quantity;
     String product_price;
@@ -415,6 +466,13 @@ public class CustomerOperations {
   }
 
 
+  /**
+   * Method to update the shopping cart. The customer can either delete a product
+   * from the cart, or update a product's desired quantity.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @throws Exception if any I/O operation in console failed
+   */
   public void update_cart(Connection con, Scanner sc) throws Exception {
 
     String update_cart_input = "";
@@ -451,15 +509,21 @@ public class CustomerOperations {
   }
 
 
+  /**
+   * Helper method to delete a product from the shopping cart.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @throws Exception if any I/O operation in console failed
+   */
   public void delete_product_from_cart(Connection con, Scanner sc) throws Exception {
 
-    String delete_product_id_input = "";
+    String delete_product_id_input;
     int delete_product_id = 0;
     int unwanted_quantity;
 
     Set<Integer> product_id_set = cart.keySet();
 
-    this.print_cart(con, sc);
+    this.print_cart();
 
     System.out.print("\nEnter the id of the product you'd like to delete from cart: ");
 
@@ -506,12 +570,18 @@ public class CustomerOperations {
 
     System.out.println("\nSuccessfully delete product from cart.");
 
-    this.print_cart(con, sc);
+    this.print_cart();
 
     this.after_update_cart_menu(con, sc);
   }
 
 
+  /**
+   * Helper method to update a product's quantity in the shopping cart.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @throws Exception if any I/O operation in console failed
+   */
   public void update_product_quantity(Connection con, Scanner sc) throws Exception {
 
     String update_product_id_input = "";
@@ -524,7 +594,7 @@ public class CustomerOperations {
 
     Set<Integer> product_id_set = cart.keySet();
 
-    this.print_cart(con, sc);
+    this.print_cart();
 
     System.out.print("\nEnter the id of the product you'd like to update quantity: ");
 
@@ -655,7 +725,7 @@ public class CustomerOperations {
 
       System.out.println("\nSuccessfully decrease product quantity in cart.");
 
-      this.print_cart(con, sc);
+      this.print_cart();
     }
     else if (old_product_quantity < update_product_quantity) {
 
@@ -679,7 +749,7 @@ public class CustomerOperations {
 
       System.out.println("\nSuccessfully increase product quantity in cart.");
 
-      this.print_cart(con, sc);
+      this.print_cart();
     }
     else {
       System.out.println("The product quantity remains the same.");
@@ -689,6 +759,14 @@ public class CustomerOperations {
   }
 
 
+  /**
+   * Print a menu to ask if the customer want to update more products in the
+   * shopping cart or not. If yes, print out more menu options for the customer
+   * to select a method to update products in cart.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @throws Exception if any I/O operation in console failed
+   */
   public void after_update_cart_menu(Connection con, Scanner sc) throws Exception {
 
     boolean flag = false;
@@ -721,6 +799,13 @@ public class CustomerOperations {
   }
 
 
+  /**
+   * Helper method to direct the customer to different methods (delete a product, or
+   * update a product's quantity) to update products in the shopping cart.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @throws Exception if any I/O operation in console failed
+   */
   public void update_product_operation_type(Connection con, Scanner sc) throws Exception {
 
     boolean flag = false;

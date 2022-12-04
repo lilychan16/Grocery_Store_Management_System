@@ -15,6 +15,7 @@ public class CustomerMenuItems {
   /**
    * Constructor for CustomerMenuItems class.
    * @param customerOperations an object from CustomerOperations class
+   * @param sharedHelperMethods an object from SharedHelperMethods class
    */
   public CustomerMenuItems(CustomerOperations customerOperations,
                            SharedHelperMethods sharedHelperMethods) {

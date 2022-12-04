@@ -191,6 +191,13 @@ public class EmployeeMenuItems {
   }
 
 
+  /**
+   * Print store manager main menu in console and then print more store manager menu items
+   * based on user input.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @throws Exception if any I/O operation in console failed
+   */
   public void store_manager_main_menu(Connection con, Scanner sc) throws Exception {
 
     String store_manager_main_menu_input = "";
@@ -223,6 +230,21 @@ public class EmployeeMenuItems {
   }
 
 
+  /**
+   * Print store manager - employee management menu and then perform an operation
+   * in console based on user input.
+   * The allowed employee management operations for a store manager are:
+   *    (1) Show all employee data
+   *    (2) Look up employee info by employee id
+   *    (3) Look up employee info by employee name
+   *    (4) Add a new employee
+   *    (5) Delete an employee by employee id
+   *    (6) Go back to store manager main menu
+   *    (7) Quit
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @throws Exception if any I/O operation in console failed
+   */
   public void store_manager_employee_side_menu(Connection con, Scanner sc) throws Exception {
 
     String store_manager_menu_type = "employee";
@@ -272,6 +294,21 @@ public class EmployeeMenuItems {
   }
 
 
+  /**
+   * Print store manager - customer management menu and then perform an operation
+   * in console based on user input.
+   * The allowed customer management operations for a store manager are:
+   *    (1) Show all customer data
+   *    (2) Look up customer info by customer id
+   *    (3) Look up customer info by customer name
+   *    (4) Add a new customer
+   *    (5) Delete a customer by customer id
+   *    (6) Go back to store manager main menu
+   *    (7) Quit
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @throws Exception if any I/O operation in console failed
+   */
   public void store_manager_customer_side_menu(Connection con, Scanner sc) throws Exception {
 
     String store_manager_menu_type = "customer";
@@ -280,7 +317,7 @@ public class EmployeeMenuItems {
     while (true) {
       System.out.println("\nPlease select an option:\n1. Show all customer data"
               + "\n2. Look up customer info by customer id"
-              + "\n3. Look up customer info by customer name\n4. add a new customer"
+              + "\n3. Look up customer info by customer name\n4. Add a new customer"
               + "\n5. Delete a customer by customer id\n6. Go back to store manager main menu"
               + "\n7. Quit");
 
@@ -312,6 +349,17 @@ public class EmployeeMenuItems {
   }
 
 
+  /**
+   * Print a menu for store manager to add a new employee to the database.
+   * The allowed employee types to be added are:
+   *    (1) Store Manager
+   *    (2) Warehouse Manager
+   *    (3) Cashier
+   *    (4) Cleaner
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @throws Exception if any I/O operation in console failed
+   */
   public void store_manager_add_new_employee_menu(Connection con, Scanner sc) throws Exception {
 
     String store_manager_menu_type = "employee";
@@ -524,6 +572,15 @@ public class EmployeeMenuItems {
   }
 
 
+  /**
+   * If a store manager's menu selection involves calling a SQL procedure, then once it's done,
+   * a prompt will show up in console to ask the employee to either go back to the previous menu
+   * (which is either the employee management menu or the customer management menu) or quit.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @param store_manager_menu_type the type of store manager menus, either employee or customer
+   * @throws Exception if any I/O operation in console failed
+   */
   public void store_manager_after_result_menu(Connection con, Scanner sc,
                                               String store_manager_menu_type) throws Exception {
 

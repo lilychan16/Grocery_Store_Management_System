@@ -13,6 +13,11 @@ import java.util.Scanner;
  */
 public class StoreManagerEmployeeSideOperations {
 
+  /**
+   * Method to show all employees' information.
+   * @param con a connection to the database
+   * @throws SQLException if any SQL operation failed
+   */
   public void show_all_employees(Connection con) throws SQLException {
 
     System.out.println("\nPrint all employees:");
@@ -30,6 +35,13 @@ public class StoreManagerEmployeeSideOperations {
   }
 
 
+  /**
+   * Method to look up employee information by entering an employee id.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @return an employee id that can be used by other methods
+   * @throws SQLException if any SQL operation failed
+   */
   public String look_up_employee_by_id(Connection con, Scanner sc) throws SQLException {
 
     String employee_id = this.validate_employee_id_input(con, sc);
@@ -53,6 +65,13 @@ public class StoreManagerEmployeeSideOperations {
   }
 
 
+  /**
+   * Helper method to validate an employee id input.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @return a valid employee id input
+   * @throws SQLException if any SQL operation failed
+   */
   public String validate_employee_id_input(Connection con, Scanner sc) throws SQLException {
 
     String employee_id = "";
@@ -91,6 +110,12 @@ public class StoreManagerEmployeeSideOperations {
   }
 
 
+  /**
+   * Method to look up employee information by entering an employee name.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @throws SQLException if any SQL operation failed
+   */
   public void look_up_employee_by_name(Connection con, Scanner sc) throws SQLException {
 
     String employee_name = "";
@@ -143,6 +168,13 @@ public class StoreManagerEmployeeSideOperations {
   }
 
 
+  /**
+   * Method to add a new employee to the MySQL database.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @param new_employee_type the employee type of the new employee to be added
+   * @throws SQLException if any SQL operation failed
+   */
   public void add_new_employee(Connection con, Scanner sc, String new_employee_type)
                                                                               throws SQLException {
 
@@ -241,7 +273,7 @@ public class StoreManagerEmployeeSideOperations {
       String new_cashier_counter_input;
       int new_cashier_counter = 0;
 
-      ArrayList<Integer> counter_id_list = this.get_counter_number(con);
+      ArrayList<Integer> counter_id_list = this.get_counter_numbers(con);
 
       System.out.print("\nPlease enter a counter number based on the counter table above: ");
 
@@ -293,7 +325,7 @@ public class StoreManagerEmployeeSideOperations {
       String new_cleaning_area_input = "";
       int new_cleaning_area = 0;
 
-      ArrayList<Integer> area_id_list = this.get_area_id(con);
+      ArrayList<Integer> area_id_list = this.get_area_ids(con);
 
       System.out.print("\nPlease enter a cleaning area id based on the area table above: ");
 
@@ -354,6 +386,12 @@ public class StoreManagerEmployeeSideOperations {
   }
 
 
+  /**
+   * Method to delete an employee in the MySQL database by entering an employee id.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @throws SQLException if any SQL operation failed
+   */
   public void delete_employee_by_id(Connection con, Scanner sc) throws SQLException {
 
     String employee_id;
@@ -458,10 +496,16 @@ public class StoreManagerEmployeeSideOperations {
     else {
       this.delete_employee_by_id(con, sc);
     }
-
   }
 
 
+  /**
+   * Helper method to get the employee type of a specific employee by entering an employee id.
+   * @param con a connection to the database
+   * @param employee_id an employee id
+   * @return the employee type of a specific employee
+   * @throws SQLException if any SQL operation failed
+   */
   public String get_employee_type_by_id(Connection con, String employee_id) throws SQLException {
 
     String employee_type = "";
@@ -485,6 +529,12 @@ public class StoreManagerEmployeeSideOperations {
   }
 
 
+  /**
+   * Helper method to print a formatted table (contains only one column) in console.
+   * @param rs_one_integer_column a ResultSet object of all information in a result table,
+   *                              which contains only one column
+   * @throws SQLException if any SQL operation failed
+   */
   public void print_formatted_table_one_integer_column(ResultSet rs_one_integer_column)
                                                                             throws SQLException {
 
@@ -501,6 +551,12 @@ public class StoreManagerEmployeeSideOperations {
   }
 
 
+  /**
+   * Helper method to print a formatted table (contains two column) in console.
+   * @param rs_two_integers_columns a ResultSet object of all information in a result table,
+   *                                which contains two columns
+   * @throws SQLException if any SQL operation failed
+   */
   public void print_formatted_table_two_integer_columns(ResultSet rs_two_integers_columns)
                                                                             throws SQLException {
 
@@ -520,7 +576,13 @@ public class StoreManagerEmployeeSideOperations {
   }
 
 
-  public ArrayList<Integer> get_counter_number(Connection con) throws SQLException {
+  /**
+   * Helper method to get all counter ids from the counter table.
+   * @param con a connection to the database
+   * @return a list of counter ids
+   * @throws SQLException if any SQL operation failed
+   */
+  public ArrayList<Integer> get_counter_numbers(Connection con) throws SQLException {
 
     ArrayList<Integer> counter_id_list = new ArrayList<>();
 
@@ -549,7 +611,13 @@ public class StoreManagerEmployeeSideOperations {
   }
 
 
-  public ArrayList<Integer> get_area_id(Connection con) throws SQLException {
+  /**
+   * Helper method to get all area ids from the store area table.
+   * @param con a connection to the database
+   * @return a list of store area ids
+   * @throws SQLException if any SQL operation failed
+   */
+  public ArrayList<Integer> get_area_ids(Connection con) throws SQLException {
 
     ArrayList<Integer> area_id_list = new ArrayList<>();
 
@@ -582,6 +650,11 @@ public class StoreManagerEmployeeSideOperations {
   }
 
 
+  /**
+   * Helper method to validate a birth year input.
+   * @param sc the scanner to receive user input
+   * @return a valid birth year input
+   */
   public int validate_birth_year_input(Scanner sc) {
 
     String birth_year_input;
@@ -620,6 +693,11 @@ public class StoreManagerEmployeeSideOperations {
   }
 
 
+  /**
+   * Helper method to validate a birth month input.
+   * @param sc the scanner to receive user input
+   * @return a valid birth month input
+   */
   public int validate_birth_month_input(Scanner sc) {
 
     String birth_month_input;
@@ -657,6 +735,13 @@ public class StoreManagerEmployeeSideOperations {
   }
 
 
+  /**
+   * Helper method to validate a birth day input.
+   * @param sc the scanner to receive user input
+   * @param birth_month a birth month input
+   * @param birth_year a birth year input
+   * @return a valid birth day input
+   */
   public int validate_birth_day_input(Scanner sc, int birth_month, int birth_year) {
 
     String birth_day_input = "";
@@ -732,6 +817,11 @@ public class StoreManagerEmployeeSideOperations {
   }
 
 
+  /**
+   * Helper method to validate an hourly wage input.
+   * @param sc the scanner to receive user input
+   * @return a valid hourly wage input
+   */
   public double validate_hourly_wage_input(Scanner sc) {
 
     String hourly_wage_input;
@@ -763,6 +853,11 @@ public class StoreManagerEmployeeSideOperations {
   }
 
 
+  /**
+   * Helper method to print a formatted employee table in console.
+   * @param rs_employee a ResultSet object of all information in the employee table
+   * @throws SQLException if any SQL operation failed
+   */
   public void print_formatted_employee_table(ResultSet rs_employee) throws SQLException {
 
     ResultSetMetaData rsmd_employee_table = rs_employee.getMetaData();
@@ -787,6 +882,11 @@ public class StoreManagerEmployeeSideOperations {
   }
 
 
+  /**
+   * Helper method to print the store manager table in console.
+   * @param con a connection to the database
+   * @throws SQLException if any SQL operation failed
+   */
   public void print_store_manager_table(Connection con) throws SQLException {
 
     CallableStatement cs_all_store_managers = con.prepareCall(
@@ -802,6 +902,11 @@ public class StoreManagerEmployeeSideOperations {
   }
 
 
+  /**
+   * Helper method to print the warehouse manager table in console.
+   * @param con a connection to the database
+   * @throws SQLException if any SQL operation failed
+   */
   public void print_warehouse_manager_table(Connection con) throws SQLException {
 
     CallableStatement cs_all_warehouse_managers = con.prepareCall(
@@ -817,6 +922,11 @@ public class StoreManagerEmployeeSideOperations {
   }
 
 
+  /**
+   * Helper method to print the cashier table in console.
+   * @param con a connection to the database
+   * @throws SQLException if any SQL operation failed
+   */
   public void print_cashier_table(Connection con) throws SQLException {
 
     CallableStatement cs_all_cashiers = con.prepareCall(
@@ -832,6 +942,11 @@ public class StoreManagerEmployeeSideOperations {
   }
 
 
+  /**
+   * Helper method to print the cleaner table in console.
+   * @param con a connection to the database
+   * @throws SQLException if any SQL operation failed
+   */
   public void print_cleaner_table(Connection con) throws SQLException {
 
     CallableStatement cs_all_cleaners = con.prepareCall(

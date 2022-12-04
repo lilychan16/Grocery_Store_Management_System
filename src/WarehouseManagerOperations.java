@@ -180,7 +180,7 @@ public class WarehouseManagerOperations {
 
     category_list = this.get_category(con);
 
-    System.out.print("\nPlease enter a category based on the category table above: ");
+    System.out.print("\nPlease enter a category name based on the category table above: ");
 
     if (sc.hasNextLine()) {
       category_name = sc.nextLine();
@@ -188,7 +188,7 @@ public class WarehouseManagerOperations {
 
     while (!category_list.contains(category_name.toLowerCase())) {
       System.out.println("\nYou entered invalid input. Please refer to the category table.");
-      System.out.print("Please enter a category based on the category table above: ");
+      System.out.print("Please enter a category name based on the category table above: ");
 
       if (sc.hasNextLine()) {
         category_name = sc.nextLine();
@@ -482,42 +482,40 @@ public class WarehouseManagerOperations {
     String product_id = this.employee_look_up_product_by_id(con, sc);
     String delete_or_not = "";
 
-    System.out.print("\nPlease enter 1 to confirm deletion, or 0 to quit: ");
+    System.out.print("\nPlease enter 1 to confirm deletion, or 0 to re-enter product id: ");
 
     if (sc.hasNext()) {
       delete_or_not = sc.next();
-
-      if (delete_or_not.equals("0")) {
-        System.exit(0);
-      }
     }
 
-    while (!delete_or_not.equals("1")) {
-      System.out.print("Invalid input, please enter 1 to confirm deletion, or 0 to quit: ");
+    while (!delete_or_not.equals("1") && !delete_or_not.equals("0")) {
+      System.out.print("Invalid input, please enter 1 to confirm deletion, "
+                        + "or 0 to re-enter product id: ");
 
       if (sc.hasNext()) {
         delete_or_not = sc.next();
-
-        if (delete_or_not.equals("0")) {
-          System.exit(0);
-        }
       }
     }
 
-    CallableStatement cs_delete_product = con.prepareCall(
-            "{call deleteProductById(?)}"
-    );
+    if (delete_or_not.equals("1")) {
+      CallableStatement cs_delete_product = con.prepareCall(
+              "{call deleteProductById(?)}"
+      );
 
-    cs_delete_product.setInt(1, Integer.parseInt(product_id));
+      cs_delete_product.setInt(1, Integer.parseInt(product_id));
 
-    cs_delete_product.executeUpdate();
+      cs_delete_product.executeUpdate();
 
-    System.out.println("\nSuccessfully delete the product.");
-    System.out.println("The updated product table is as follows:");
+      System.out.println("\nSuccessfully delete the product.");
+      System.out.println("The updated product table is as follows:");
 
-    this.show_all_products(con);
+      this.show_all_products(con);
 
-    cs_delete_product.close();
+      cs_delete_product.close();
+    }
+    else {
+      this.delete_product_by_id(con, sc);
+    }
   }
 
 
