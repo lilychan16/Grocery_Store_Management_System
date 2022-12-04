@@ -11,7 +11,7 @@ import java.util.Scanner;
 /**
  * Public class to store methods to perform operations in store manager menu.
  */
-public class StoreManagerOperations {
+public class StoreManagerEmployeeSideOperations {
 
   public void show_all_employees(Connection con) throws SQLException {
 
@@ -30,7 +30,7 @@ public class StoreManagerOperations {
   }
 
 
-  public void look_up_employee_by_id(Connection con, Scanner sc) throws SQLException {
+  public String look_up_employee_by_id(Connection con, Scanner sc) throws SQLException {
 
     String employee_id = this.validate_employee_id_input(con, sc);
 
@@ -48,6 +48,8 @@ public class StoreManagerOperations {
 
     rs_employee_by_id.close();
     cs_employee_by_id.close();
+
+    return employee_id;
   }
 
 
@@ -217,16 +219,7 @@ public class StoreManagerOperations {
       System.out.println("\nSuccessfully added a new store manager.");
       System.out.println("\nThe updated store manager table is as follows:");
 
-      CallableStatement cs_all_store_managers = con.prepareCall(
-              "{call queryStoreManagerAll()}"
-      );
-
-      ResultSet rs_all_store_managers = cs_all_store_managers.executeQuery();
-
-      this.print_formatted_table_one_integer_column(rs_all_store_managers);
-
-      rs_all_store_managers.close();
-      cs_all_store_managers.close();
+      this.print_store_manager_table(con);
     }
     else if (new_employee_type.equals("warehouse_manager")) {
       // add a new employee to warehouse manager table
@@ -241,16 +234,7 @@ public class StoreManagerOperations {
       System.out.println("\nSuccessfully added a new warehouse manager.");
       System.out.println("\nThe updated warehouse manager table is as follows:");
 
-      CallableStatement cs_all_warehouse_managers = con.prepareCall(
-              "{call queryWarehouseManagerAll()}"
-      );
-
-      ResultSet rs_all_warehouse_managers = cs_all_warehouse_managers.executeQuery();
-
-      this.print_formatted_table_one_integer_column(rs_all_warehouse_managers);
-
-      rs_all_warehouse_managers.close();
-      cs_all_warehouse_managers.close();
+      this.print_warehouse_manager_table(con);
     }
     else if (new_employee_type.equals("cashier")) {
 
@@ -302,16 +286,7 @@ public class StoreManagerOperations {
       System.out.println("\nSuccessfully added a new cashier.");
       System.out.println("\nThe updated cashier table is as follows:");
 
-      CallableStatement cs_all_cashiers = con.prepareCall(
-              "{call queryCashierAll()}"
-      );
-
-      ResultSet rs_all_cashiers = cs_all_cashiers.executeQuery();
-
-      this.print_formatted_table_two_integer_columns(rs_all_cashiers);
-
-      rs_all_cashiers.close();
-      cs_all_cashiers.close();
+      this.print_cashier_table(con);
     }
     else if (new_employee_type.equals("cleaner")) {
 
@@ -362,16 +337,7 @@ public class StoreManagerOperations {
       System.out.println("\nSuccessfully added a new cleaner.");
       System.out.println("\nThe updated cleaner table is as follows:");
 
-      CallableStatement cs_all_cleaners = con.prepareCall(
-              "{call queryCleanerAll()}"
-      );
-
-      ResultSet rs_all_cleaners = cs_all_cleaners.executeQuery();
-
-      this.print_formatted_table_two_integer_columns(rs_all_cleaners);
-
-      rs_all_cleaners.close();
-      cs_all_cleaners.close();
+      this.print_cleaner_table(con);
     }
     else {
       System.out.println("Not a valid employee type based on current record. "
@@ -385,6 +351,137 @@ public class StoreManagerOperations {
     rs_get_employee_id.close();
     cs_get_employee_id.close();
     cs_insert_employee.close();
+  }
+
+
+  public void delete_employee_by_id(Connection con, Scanner sc) throws SQLException {
+
+    String employee_id;
+    String employee_type;
+    String delete_or_not = "";
+
+    employee_id = this.look_up_employee_by_id(con, sc);
+    employee_type = this.get_employee_type_by_id(con, employee_id);
+
+    while (employee_type.equals("store_manager")) {
+      System.out.println("\nYou are not allowed to delete a store manager. "
+                          + "Please re-enter employee id.");
+
+      employee_id = this.look_up_employee_by_id(con, sc);
+      employee_type = this.get_employee_type_by_id(con, employee_id);
+    }
+
+    System.out.print("\nPlease enter 1 to confirm deletion, or 0 to re-enter employee id: ");
+
+    if (sc.hasNext()) {
+      delete_or_not = sc.next();
+    }
+
+    while (!delete_or_not.equals("1") && !delete_or_not.equals("0")) {
+      System.out.print("\nInvalid input, please enter 1 to confirm deletion, "
+                        + "or 0 to re-enter employee id: ");
+
+      if (sc.hasNext()) {
+        delete_or_not = sc.next();
+      }
+    }
+
+    if (delete_or_not.equals("1")) {
+      
+      if (employee_type.equals("warehouse_manager")) {
+        CallableStatement cs_delete_warehouse_manager = con.prepareCall(
+                "{call deleteWarehouseManagerById(?)}"
+        );
+
+        cs_delete_warehouse_manager.setInt(1, Integer.parseInt(employee_id));
+
+        cs_delete_warehouse_manager.executeUpdate();
+
+        System.out.println("\nSuccessfully delete the warehouse manager.");
+        System.out.println("The updated warehouse manager table is as follows:");
+
+        this.print_warehouse_manager_table(con);
+
+        cs_delete_warehouse_manager.close();
+      }
+      else if (employee_type.equals("cashier")) {
+        CallableStatement cs_delete_cashier = con.prepareCall(
+                "{call deleteCashierById(?)}"
+        );
+
+        cs_delete_cashier.setInt(1, Integer.parseInt(employee_id));
+
+        cs_delete_cashier.executeUpdate();
+
+        System.out.println("\nSuccessfully delete the cashier.");
+        System.out.println("The updated cashier table is as follows:");
+
+        this.print_cashier_table(con);
+
+        cs_delete_cashier.close();
+      }
+      else if (employee_type.equals("cleaner")) {
+        CallableStatement cs_delete_cleaner = con.prepareCall(
+                "{call deleteCleanerById(?)}"
+        );
+
+        cs_delete_cleaner.setInt(1, Integer.parseInt(employee_id));
+
+        cs_delete_cleaner.executeUpdate();
+
+        System.out.println("\nSuccessfully delete the cleaner.");
+        System.out.println("The updated cleaner table is as follows:");
+
+        this.print_cleaner_table(con);
+
+        cs_delete_cleaner.close();
+      }
+      else {
+        System.out.println("Not a valid employee type based on current record. "
+                + "Please update the delete_employee_by_id method.");
+      }
+
+      CallableStatement cs_delete_employee = con.prepareCall(
+              "{call deleteEmployeeById(?)}"
+      );
+
+      cs_delete_employee.setInt(1, Integer.parseInt(employee_id));
+
+      cs_delete_employee.executeUpdate();
+
+      System.out.println("\nThe updated employee table is as follows:");
+
+      this.show_all_employees(con);
+
+      cs_delete_employee.close();
+    }
+    else {
+      this.delete_employee_by_id(con, sc);
+    }
+
+  }
+
+
+  public String get_employee_type_by_id(Connection con, String employee_id) throws SQLException {
+
+    String employee_type = "";
+
+    CallableStatement cs_get_employee_type = con.prepareCall(
+            "{call queryEmployeeTypeById(?)}"
+    );
+
+    cs_get_employee_type.setInt(1, Integer.parseInt(employee_id));
+
+    ResultSet rs_get_employee_type = cs_get_employee_type.executeQuery();
+
+    while (rs_get_employee_type.next()) {
+      employee_type = rs_get_employee_type.getString(1);
+    }
+
+    rs_get_employee_type.close();
+    cs_get_employee_type.close();
+
+    return employee_type;
   }
 
 
@@ -689,4 +786,63 @@ public class StoreManagerOperations {
     }
   }
 
+
+  public void print_store_manager_table(Connection con) throws SQLException {
+
+    CallableStatement cs_all_store_managers = con.prepareCall(
+            "{call queryStoreManagerAll()}"
+    );
+
+    ResultSet rs_all_store_managers = cs_all_store_managers.executeQuery();
+
+    this.print_formatted_table_one_integer_column(rs_all_store_managers);
+
+    rs_all_store_managers.close();
+    cs_all_store_managers.close();
+  }
+
+
+  public void print_warehouse_manager_table(Connection con) throws SQLException {
+
+    CallableStatement cs_all_warehouse_managers = con.prepareCall(
+            "{call queryWarehouseManagerAll()}"
+    );
+
+    ResultSet rs_all_warehouse_managers = cs_all_warehouse_managers.executeQuery();
+
+    this.print_formatted_table_one_integer_column(rs_all_warehouse_managers);
+
+    rs_all_warehouse_managers.close();
+    cs_all_warehouse_managers.close();
+  }
+
+
+  public void print_cashier_table(Connection con) throws SQLException {
+
+    CallableStatement cs_all_cashiers = con.prepareCall(
+            "{call queryCashierAll()}"
+    );
+
+    ResultSet rs_all_cashiers = cs_all_cashiers.executeQuery();
+
+    this.print_formatted_table_two_integer_columns(rs_all_cashiers);
+
+    rs_all_cashiers.close();
+    cs_all_cashiers.close();
+  }
+
+
+  public void print_cleaner_table(Connection con) throws SQLException {
+
+    CallableStatement cs_all_cleaners = con.prepareCall(
+            "{call queryCleanerAll()}"
+    );
+
+    ResultSet rs_all_cleaners = cs_all_cleaners.executeQuery();
+
+    this.print_formatted_table_two_integer_columns(rs_all_cleaners);
+
+    rs_all_cleaners.close();
+    cs_all_cleaners.close();
+  }
 }

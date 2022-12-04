@@ -48,14 +48,14 @@ public class GroceryStoreApp {
 
     SharedHelperMethods sharedHelperMethods = new SharedHelperMethods();
 
-    StoreManagerOperations storeManagerOperations = new StoreManagerOperations();
+    StoreManagerEmployeeSideOperations storeManagerEmployeeSideOperations = new StoreManagerEmployeeSideOperations();
     WarehouseManagerOperations warehouseManagerOperations
                                             = new WarehouseManagerOperations(sharedHelperMethods);
     CashierCleanerOperations cashierCleanerOperations = new CashierCleanerOperations();
 
     CustomerOperations customerOperations = new CustomerOperations(sharedHelperMethods);
 
-    EmployeeMenuItems employeeMenu = new EmployeeMenuItems(storeManagerOperations,
+    EmployeeMenuItems employeeMenu = new EmployeeMenuItems(storeManagerEmployeeSideOperations,
                                                             warehouseManagerOperations,
                                                             cashierCleanerOperations);
 

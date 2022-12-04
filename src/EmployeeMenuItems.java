@@ -10,7 +10,7 @@ import java.util.Scanner;
  */
 public class EmployeeMenuItems {
 
-  StoreManagerOperations storeManagerOperations;
+  StoreManagerEmployeeSideOperations storeManagerEmployeeSideOperations;
   WarehouseManagerOperations warehouseManagerOperations;
   CashierCleanerOperations cashierCleanerOperations;
 
@@ -18,13 +18,13 @@ public class EmployeeMenuItems {
    * Constructor for EmployeeMenuItems class.
    * @param warehouseManagerOperations an object from EmployeeOperations class
    * @param cashierCleanerOperations an object from CashierCleanerOperations class
-   * @param storeManagerOperations an object from StoreManagerOperations class
+   * @param storeManagerEmployeeSideOperations an object from StoreManagerEmployeeSideOperations class
    */
-  public EmployeeMenuItems(StoreManagerOperations storeManagerOperations,
+  public EmployeeMenuItems(StoreManagerEmployeeSideOperations storeManagerEmployeeSideOperations,
                            WarehouseManagerOperations warehouseManagerOperations,
                            CashierCleanerOperations cashierCleanerOperations) {
 
-    this.storeManagerOperations = storeManagerOperations;
+    this.storeManagerEmployeeSideOperations = storeManagerEmployeeSideOperations;
     this.warehouseManagerOperations = warehouseManagerOperations;
     this.cashierCleanerOperations = cashierCleanerOperations;
   }
@@ -241,21 +241,23 @@ public class EmployeeMenuItems {
 
       switch (store_manager_employee_side_input) {
         case "1":
-          storeManagerOperations.show_all_employees(con);
+          storeManagerEmployeeSideOperations.show_all_employees(con);
           this.store_manager_after_result_menu(con, sc, store_manager_menu_type);
 
         case "2":
-          storeManagerOperations.look_up_employee_by_id(con, sc);
+          storeManagerEmployeeSideOperations.look_up_employee_by_id(con, sc);
           this.store_manager_after_result_menu(con, sc, store_manager_menu_type);
 
         case "3":
-          storeManagerOperations.look_up_employee_by_name(con, sc);
+          storeManagerEmployeeSideOperations.look_up_employee_by_name(con, sc);
           this.store_manager_after_result_menu(con, sc, store_manager_menu_type);
 
         case "4":
           this.store_manager_add_new_employee_menu(con, sc);
 
         case "5":
+          storeManagerEmployeeSideOperations.delete_employee_by_id(con, sc);
+          this.store_manager_after_result_menu(con, sc, store_manager_menu_type);
 
         case "6":
           this.store_manager_main_menu(con, sc);
@@ -327,19 +329,19 @@ public class EmployeeMenuItems {
 
       switch(add_new_employee_menu_input) {
         case "1":
-          storeManagerOperations.add_new_employee(con, sc, "store_manager");
+          storeManagerEmployeeSideOperations.add_new_employee(con, sc, "store_manager");
           this.store_manager_after_result_menu(con, sc, store_manager_menu_type);
 
         case "2":
-          storeManagerOperations.add_new_employee(con, sc, "warehouse_manager");
+          storeManagerEmployeeSideOperations.add_new_employee(con, sc, "warehouse_manager");
           this.store_manager_after_result_menu(con, sc, store_manager_menu_type);
 
         case "3":
-          storeManagerOperations.add_new_employee(con, sc, "cashier");
+          storeManagerEmployeeSideOperations.add_new_employee(con, sc, "cashier");
           this.store_manager_after_result_menu(con, sc, store_manager_menu_type);
 
         case "4":
-          storeManagerOperations.add_new_employee(con, sc, "cleaner");
+          storeManagerEmployeeSideOperations.add_new_employee(con, sc, "cleaner");
           this.store_manager_after_result_menu(con, sc, store_manager_menu_type);
 
         case "5":
