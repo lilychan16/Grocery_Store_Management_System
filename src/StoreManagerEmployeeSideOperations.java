@@ -4,14 +4,24 @@ import java.sql.Date;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.time.Year;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
- * Public class to store methods to perform operations in store manager menu.
+ * Public class to store methods to perform operations in store manager - employee management menu.
  */
 public class StoreManagerEmployeeSideOperations {
+
+  SharedHelperMethods sharedHelperMethods;
+
+  /**
+   * Constructor for StoreManagerEmployeeSideOperations class.
+   * @param sharedHelperMethods an object from SharedHelperMethods class
+   */
+  public StoreManagerEmployeeSideOperations(SharedHelperMethods sharedHelperMethods) {
+    this.sharedHelperMethods = sharedHelperMethods;
+  }
+
 
   /**
    * Method to show all employees' information.
@@ -185,7 +195,7 @@ public class StoreManagerEmployeeSideOperations {
     double employee_hourly_wage;
     int new_employee_id = 0;
 
-    System.out.print("\nPlease enter employee name: ");
+    System.out.print("\nPlease enter employee's name: ");
 
     if (sc.hasNextLine()) {
       sc.nextLine();
@@ -194,16 +204,16 @@ public class StoreManagerEmployeeSideOperations {
 
     System.out.print("Please enter employee's birth year: ");
 
-    employee_birth_year = this.validate_birth_year_input(sc);
+    employee_birth_year = sharedHelperMethods.validate_birth_year_input(sc);
 
     System.out.print("Please enter employee's birth month: ");
 
-    employee_birth_month = this.validate_birth_month_input(sc);
+    employee_birth_month = sharedHelperMethods.validate_birth_month_input(sc);
 
     System.out.print("Please enter employee's birth day: ");
 
-    employee_birth_day = this.validate_birth_day_input(sc, employee_birth_month,
-                                                        employee_birth_year);
+    employee_birth_day = sharedHelperMethods.validate_birth_day_input(sc, employee_birth_month,
+                                                                          employee_birth_year);
 
     String employee_dob = employee_birth_year + "-" + employee_birth_month + "-"
                                                             + employee_birth_day;
@@ -322,7 +332,7 @@ public class StoreManagerEmployeeSideOperations {
     }
     else if (new_employee_type.equals("cleaner")) {
 
-      String new_cleaning_area_input = "";
+      String new_cleaning_area_input;
       int new_cleaning_area = 0;
 
       ArrayList<Integer> area_id_list = this.get_area_ids(con);
@@ -647,173 +657,6 @@ public class StoreManagerEmployeeSideOperations {
     cs_area.close();
 
     return area_id_list;
-  }
-
-
-  /**
-   * Helper method to validate a birth year input.
-   * @param sc the scanner to receive user input
-   * @return a valid birth year input
-   */
-  public int validate_birth_year_input(Scanner sc) {
-
-    String birth_year_input;
-    int birth_year = 0;
-
-    if (sc.hasNextLine()) {
-
-      boolean flag = false;
-
-      while (!flag) {
-        try {
-          birth_year_input = sc.nextLine();
-          birth_year = Integer.parseInt(birth_year_input);
-
-          while (birth_year < 1930 || birth_year > (Year.now().getValue() - 18)) {
-            System.out.println("Employee birth year must be between 1930 and "
-                                + (Year.now().getValue() - 18) + ".");
-            System.out.print("Please enter employee's birth year: ");
-
-            if (sc.hasNextLine()) {
-              birth_year_input = sc.nextLine();
-              birth_year = Integer.parseInt(birth_year_input);
-            }
-          }
-
-          flag = true;
-
-        } catch (NumberFormatException e) {
-          System.out.print("\nYou did not enter a number.");
-          System.out.print("\nPlease enter employee's birth year: ");
-        }
-      }
-    }
-
-    return birth_year;
-  }
-
-
-  /**
-   * Helper method to validate a birth month input.
-   * @param sc the scanner to receive user input
-   * @return a valid birth month input
-   */
-  public int validate_birth_month_input(Scanner sc) {
-
-    String birth_month_input;
-    int birth_month = 0;
-
-    if (sc.hasNextLine()) {
-
-      boolean flag = false;
-
-      while (!flag) {
-        try {
-          birth_month_input = sc.nextLine();
-          birth_month = Integer.parseInt(birth_month_input);
-
-          while (birth_month < 1 || birth_month > 12) {
-            System.out.println("Employee's birth month must be between 1 and 12.");
-            System.out.print("Please enter employee's birth month: ");
-
-            if (sc.hasNextLine()) {
-              birth_month_input = sc.nextLine();
-              birth_month = Integer.parseInt(birth_month_input);
-            }
-          }
-
-          flag = true;
-
-        } catch (NumberFormatException e) {
-          System.out.print("\nYou did not enter a number.");
-          System.out.print("\nPlease enter employee's birth month: ");
-        }
-      }
-    }
-
-    return birth_month;
-  }
-
-
-  /**
-   * Helper method to validate a birth day input.
-   * @param sc the scanner to receive user input
-   * @param birth_month a birth month input
-   * @param birth_year a birth year input
-   * @return a valid birth day input
-   */
-  public int validate_birth_day_input(Scanner sc, int birth_month, int birth_year) {
-
-    String birth_day_input = "";
-    int birth_day = 0;
-
-    if (sc.hasNextLine()) {
-
-      boolean flag = false;
-
-      while (!flag) {
-        try {
-          birth_day_input = sc.nextLine();
-          birth_day = Integer.parseInt(birth_day_input);
-
-          if (birth_month == 2) {
-            if (Year.of(birth_year).isLeap()) {
-              while (birth_day < 1 || birth_day > 29) {
-                System.out.println("Employee's birth year is a leap year. "
-                                    + "Birth day must be between 1 and 29.");
-                System.out.print("Please enter employee's birth day: ");
-
-                if (sc.hasNextLine()) {
-                  birth_day_input = sc.nextLine();
-                  birth_day = Integer.parseInt(birth_day_input);
-                }
-              }
-            }
-            else {
-              while (birth_day < 1 || birth_day > 28) {
-                System.out.println("Employee's birth day must be between 1 and 28.");
-                System.out.print("Please enter employee's birth day: ");
-
-                if (sc.hasNextLine()) {
-                  birth_day_input = sc.nextLine();
-                  birth_day = Integer.parseInt(birth_day_input);
-                }
-              }
-            }
-          }
-          else if (birth_month == 4 || birth_month == 6 || birth_month == 9 || birth_month == 11) {
-            while (birth_day < 1 || birth_day > 30) {
-              System.out.println("Employee's birth day must be between 1 and 30.");
-              System.out.print("Please enter employee's birth day: ");
-
-              if (sc.hasNextLine()) {
-                birth_day_input = sc.nextLine();
-                birth_day = Integer.parseInt(birth_day_input);
-              }
-            }
-          }
-          else {
-            while (birth_day < 1 || birth_day > 31) {
-              System.out.println("Employee's birth day must be between 1 and 31.");
-              System.out.print("Please enter employee's birth day: ");
-
-              if (sc.hasNextLine()) {
-                birth_day_input = sc.nextLine();
-                birth_day = Integer.parseInt(birth_day_input);
-              }
-            }
-          }
-
-          flag = true;
-
-        } catch (NumberFormatException e) {
-          System.out.print("\nYou did not enter a number.");
-          System.out.print("\nPlease enter employee's birth day: ");
-        }
-      }
-    }
-
-    return birth_day;
   }
 
 
