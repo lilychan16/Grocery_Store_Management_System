@@ -3,6 +3,9 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.LinkedList;
@@ -354,7 +357,7 @@ public class CustomerOperations {
           // In the future, when a customer search a product by name, there might be
           // multiple products with the same name but have different prices, brands, etc.
           // So we need to ask the customer for the unique product id to add to the cart.
-          System.out.print("\nPlease enter the product id of the product you'd like to add: ");
+          System.out.print("Please enter the product id of the product you'd like to add: ");
 
           if (sc.hasNext()) {
             product_id_input = sc.next();
@@ -393,22 +396,93 @@ public class CustomerOperations {
 
 
   /**
+   * Method to redeem all available reward points in a customer profile.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @param customer_id a valid customer id input
+   * @throws SQLException if any SQL operation failed
+   */
+  public void redeem_points(Connection con, Scanner sc, String customer_id) throws SQLException {
+
+    String redeem_points_input = "";
+
+    CallableStatement cs_customer_info = con.prepareCall(
+            "{call queryCustomerById(?)}"
+    );
+
+    cs_customer_info.setInt(1, Integer.parseInt(customer_id));
+
+    ResultSet rs_customer_info = cs_customer_info.executeQuery();
+
+    sharedHelperMethods.print_formatted_customer_table(rs_customer_info);
+
+    System.out.println("\nEvery 100 reward points = 1 grocery dollar.");
+
+    boolean flag = false;
+
+    while (!flag) {
+      System.out.print("\nPlease enter 1 to confirm points redemption, "
+                        + "0 to go back to customer main menu or quit: ");
+
+      if (sc.hasNext()) {
+        redeem_points_input = sc.next();
+      }
+
+      switch (redeem_points_input) {
+        case "1":
+          CallableStatement cs_redeem_points = con.prepareCall(
+                  "{call updateCustomerDollarById(?)}"
+          );
+
+          cs_redeem_points.setInt(1, Integer.parseInt(customer_id));
+
+          cs_redeem_points.executeUpdate();
+
+          System.out.println("\nYour updated reward points balance "
+                              + "and grocery dollars balance are as follows.");
+          System.out.println("Note that reward points < 100 were unable to redeem.\n");
+
+          ResultSet rs_updated_customer_info = cs_customer_info.executeQuery();
+
+          sharedHelperMethods.print_formatted_customer_table(rs_updated_customer_info);
+
+          rs_updated_customer_info.close();
+
+          cs_redeem_points.close();
+
+          flag = true;
+          break;
+
+        case "0":
+          flag = true;
+          break;
+
+        default:
+          System.out.print("\nInvalid input, please re-enter");
+
+      }
+    }
+
+    rs_customer_info.close();
+    cs_customer_info.close();
+  }
+
+
+  /**
    * Method to print out products in shopping cart, update the shopping cart, and check out.
    * @param con a connection to the database
    * @param sc the scanner to receive user input
    * @throws Exception if any I/O operation in console failed
    */
-  public void check_cart_check_out(Connection con, Scanner sc) throws Exception {
+  public void cart_operations(Connection con, Scanner sc, String customer_id) throws Exception {
 
     String check_cart_input = "";
-
-    this.print_cart();
 
     boolean flag = false;
 
     while (!flag) {
-      System.out.println("\nPlease select an option:\n1. Check out\n2. Update cart"
-              + "\n3. Go back to customer main menu or Quit");
+      System.out.println("\nPlease select an option:\n1. Check cart\n2. Check out\n3. Update cart"
+              + "\n4. Go back to customer main menu or Quit");
 
       if (sc.hasNext()) {
         check_cart_input = sc.next();
@@ -416,13 +490,21 @@ public class CustomerOperations {
 
       switch (check_cart_input) {
         case "1":
+          this.print_cart();
+          flag = true;
+          break;
 
         case "2":
-          this.update_cart(con, sc);
+          this.check_out(con, sc, customer_id);
           flag = true;
           break;
 
         case "3":
+          this.update_cart(con, sc);
+          flag = true;
+          break;
+
+        case "4":
           flag = true;
           break;
 
@@ -436,8 +518,9 @@ public class CustomerOperations {
   /**
    * Helper method to format the shopping cart.
    */
-  public void print_cart() {
+  public double print_cart() {
 
+    int product_id;
     String product_quantity;
     String product_price;
 
@@ -447,7 +530,7 @@ public class CustomerOperations {
 
     for (Map.Entry<Integer, LinkedList<String>> c : this.cart.entrySet()) {
 
-      int product_id = c.getKey();
+      product_id = c.getKey();
 
       LinkedList<String> value_list = c.getValue();
 
@@ -463,6 +546,361 @@ public class CustomerOperations {
     }
 
     System.out.println("Your cart total is: " + String.format("%.2f", cart_total));
+
+    return cart_total;
+  }
+
+
+  /**
+   * Check out a shopping cart, create a new order, and store product info in this new order.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @param customer_id a valid customer id input
+   * @throws SQLException if any SQL operation failed
+   */
+  public void check_out(Connection con, Scanner sc, String customer_id) throws SQLException {
+
+    String redeem_or_not = "";
+    String apply_grocery_dollar_input;
+    double apply_grocery_dollar = 0;
+    double cart_total;
+    double grocery_dollar = 0;
+
+    cart_total = this.print_cart();
+
+    System.out.println("\nDo you want to use grocery dollars?");
+    System.out.print("Please enter 1 for yes, 0 for no: ");
+
+    if (sc.hasNext()) {
+      redeem_or_not = sc.next();
+    }
+
+    while (!redeem_or_not.equals("1") && !redeem_or_not.equals("0")) {
+      System.out.println("\nInvalid input, please re-enter.");
+      System.out.println("Do you want to use grocery dollars?");
+      System.out.print("Please enter 1 for yes, 0 for no: ");
+
+      if (sc.hasNext()) {
+        redeem_or_not = sc.next();
+      }
+    }
+
+    if (redeem_or_not.equals("1")) {
+
+      CallableStatement cs_get_grocery_dollar = con.prepareCall(
+              "{call queryCustomerById(?)}"
+      );
+
+      cs_get_grocery_dollar.setInt(1, Integer.parseInt(customer_id));
+
+      ResultSet rs_get_grocery_dollar = cs_get_grocery_dollar.executeQuery();
+
+      if (rs_get_grocery_dollar.next()) {
+        grocery_dollar = rs_get_grocery_dollar.getDouble(5);
+        System.out.println("\nYour grocery dollar balance is: "
+                            + String.format("%.2f", grocery_dollar));
+      }
+
+      System.out.print("\nPlease enter the grocery dollar amount you'd like to use: ");
+
+      if (sc.hasNext()) {
+
+        boolean flag = false;
+
+        while (!flag) {
+          try {
+              apply_grocery_dollar_input = sc.next();
+              apply_grocery_dollar = Double.parseDouble(apply_grocery_dollar_input);
+
+              while (apply_grocery_dollar < 0 || !(apply_grocery_dollar < cart_total
+                                                    && apply_grocery_dollar < grocery_dollar)) {
+                System.out.println("Grocery dollar amount cannot be less than 0, "
+                                    + "greater than cart total, "
+                                    + "or greater than your current grocery dollar balance.");
+                System.out.print("Please enter the grocery dollar amount you'd like to use: ");
+
+                if (sc.hasNext()) {
+                  apply_grocery_dollar_input = sc.next();
+                  apply_grocery_dollar = Double.parseDouble(apply_grocery_dollar_input);
+                }
+              }
+
+              flag = true;
+
+          } catch (NumberFormatException e) {
+            System.out.println("\nYou did not enter a number.");
+            System.out.print("Please enter the grocery dollar amount you'd like to use: ");
+          }
+        }
+      }
+
+      CallableStatement cs_update_dollars = con.prepareCall(
+              "{call updateCustomerDollarsById(?,?)}"
+      );
+
+      cs_update_dollars.setDouble(1, apply_grocery_dollar);
+      cs_update_dollars.setInt(2, Integer.parseInt(customer_id));
+
+      cs_update_dollars.executeUpdate();
+
+      cart_total = cart_total - apply_grocery_dollar;
+
+      this.generate_order(con, customer_id, cart_total);
+    }
+    else {
+      this.generate_order(con, customer_id, cart_total);
+    }
+  }
+
+
+  /**
+   * Helper method to create a new order and clear the shopping cart.
+   * @param con a connection to the database
+   * @param customer_id a valid customer id input
+   * @param cart_total total amount of a shopping cart
+   * @throws SQLException if any SQL operation failed
+   */
+  public void generate_order(Connection con, String customer_id, double cart_total)
+                                                                            throws SQLException {
+
+    int product_id;
+    String product_quantity;
+    int order_id = 0;
+    double formatted_cart_total;
+
+    formatted_cart_total = Double.parseDouble(String.format("%.2f", cart_total));
+
+    // add cart total amount and customer id to customer_order table,
+    // an order id will be automatically generated in the table
+    CallableStatement cs_insert_order = con.prepareCall(
+            "{call insertCustomerOrder(?,?)}"
+    );
+
+    cs_insert_order.setDouble(1, formatted_cart_total);
+    cs_insert_order.setInt(2, Integer.parseInt(customer_id));
+
+    cs_insert_order.executeUpdate();
+
+    DateTimeFormatter order_dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    LocalDate now_date = LocalDate.now();
+    String order_date = order_dtf.format(now_date);
+
+    // use order date, order total amount, and customer id to get the order id
+    CallableStatement cs_get_order_id = con.prepareCall(
+            "{call getOrderIdByDateAmountCustomerId(?,?,?)}"
+    );
+
+    cs_get_order_id.setDate(1, Date.valueOf(order_date));
+    cs_get_order_id.setDouble(2, formatted_cart_total);
+    cs_get_order_id.setInt(3, Integer.parseInt(customer_id));
+
+    ResultSet rs_get_order_id = cs_get_order_id.executeQuery();
+
+    if (rs_get_order_id.next()) {
+      order_id = rs_get_order_id.getInt(1);
+    }
+
+    // add product info (id, purchased quantity) associated with the new order id
+    CallableStatement cs_insert_order_products = con.prepareCall(
+            "{call insertOrderContainsProduct(?,?,?)}"
+    );
+
+    for (Map.Entry<Integer, LinkedList<String>> c : this.cart.entrySet()) {
+
+      cs_insert_order_products.setInt(1, order_id);
+
+      product_id = c.getKey();
+      cs_insert_order_products.setInt(2, product_id);
+
+      LinkedList<String> value_list = c.getValue();
+
+      product_quantity = value_list.get(0);
+      cs_insert_order_products.setInt(3, Integer.parseInt(product_quantity));
+
+      cs_insert_order_products.executeUpdate();
+    }
+
+    // update reward points in customer table
+    // 1 dollar = 1 point
+    CallableStatement cs_update_points = con.prepareCall(
+            "{call updateCustomerPointsById(?,?)}"
+    );
+
+    cs_update_points.setInt(1, (int) formatted_cart_total);
+    cs_update_points.setInt(2, Integer.parseInt(customer_id));
+
+    cs_update_points.executeUpdate();
+
+    System.out.println("\nSuccessfully checked out.");
+    System.out.println("Your order summary is as follows:\n");
+
+    CallableStatement cs_order_summary_by_id = con.prepareCall(
+            "{call getOrderByOrderId(?)}"
+    );
+
+    cs_order_summary_by_id.setInt(1, order_id);
+
+    ResultSet rs_order_summary_by_id = cs_order_summary_by_id.executeQuery();
+
+    this.print_formatted_order_summary_table(rs_order_summary_by_id);
+
+    System.out.println("\nYour order detail is as follows:\n");
+
+    this.print_formatted_order_detail_table(con, order_id);
+
+    System.out.println("\nYour new reward point and grocery dollar balances are as follows:\n");
+
+    CallableStatement cs_get_updated_customer = con.prepareCall(
+            "{call queryCustomerById(?)}"
+    );
+
+    cs_get_updated_customer.setInt(1, Integer.parseInt(customer_id));
+
+    ResultSet rs_get_updated_customer = cs_get_updated_customer.executeQuery();
+
+    sharedHelperMethods.print_formatted_customer_table(rs_get_updated_customer);
+
+    // clear all products in the shopping cart after check out
+    cart.clear();
+  }
+
+
+  /**
+   * Method to check a customer's order and the product info in that order.
+   * @param con a connection to the database
+   * @param sc the scanner to receive user input
+   * @param customer_id a valid customer id input
+   * @throws SQLException if any SQL operation failed
+   */
+  public void check_orders(Connection con, Scanner sc, String customer_id) throws SQLException {
+
+    String check_orders_input = "";
+    String after_check_orders_input = "";
+    ArrayList<String> order_id_list_by_customer = new ArrayList<>();
+
+    System.out.println("\nYour orders are as follows:");
+
+    CallableStatement cs_get_all_orders = con.prepareCall(
+            "{call getOrderByCustomerId(?)}"
+    );
+
+    cs_get_all_orders.setInt(1, Integer.parseInt(customer_id));
+
+    ResultSet rs_get_all_orders = cs_get_all_orders.executeQuery();
+
+    this.print_formatted_order_summary_table(rs_get_all_orders);
+
+    ResultSet rs_get_order_ids_customer = cs_get_all_orders.executeQuery();
+
+    while (rs_get_order_ids_customer.next()) {
+      order_id_list_by_customer.add(String.valueOf(rs_get_order_ids_customer.getInt(1)));
+    }
+
+    System.out.print("\nPlease enter the order id to check order details: ");
+
+    if (sc.hasNext()) {
+      check_orders_input = sc.next();
+    }
+
+    while (!order_id_list_by_customer.contains(check_orders_input)) {
+      System.out.println("Your order id input is invalid, please re-enter.");
+      System.out.print("Please enter the order id to check order details: ");
+
+      if (sc.hasNext()) {
+        check_orders_input = sc.next();
+      }
+    }
+
+    System.out.println("\nThe order detail for order " + check_orders_input + " is as follows:");
+
+    this.print_formatted_order_detail_table(con, Integer.parseInt(check_orders_input));
+
+    boolean flag = false;
+
+    while (!flag ) {
+
+      System.out.print("\nPlease enter 1 to check more orders, "
+              + "0 to go back to customer main menu or quit: ");
+
+      if (sc.hasNext()) {
+        after_check_orders_input = sc.next();
+      }
+
+      switch (after_check_orders_input) {
+        case "1":
+          this.check_orders(con, sc, customer_id);
+          flag = true;
+          break;
+
+        case "0":
+          flag = true;
+          break;
+
+        default:
+          System.out.print("\nInvalid input, please re-enter");
+      }
+    }
+  }
+
+
+  /**
+   * Helper method to print a formatted customer_order table in console.
+   * @param rs_order_summary a ResultSet object of all information in the customer_order table
+   * @throws SQLException if any SQL operation failed
+   */
+  public void print_formatted_order_summary_table(ResultSet rs_order_summary) throws SQLException {
+
+    ResultSetMetaData rsmd_order_table = rs_order_summary.getMetaData();
+
+    String order_table_columns = String.format("%-20s %-30s %-20s %-20s",
+            rsmd_order_table.getColumnName(1),
+            rsmd_order_table.getColumnName(2),
+            rsmd_order_table.getColumnName(3),
+            rsmd_order_table.getColumnName(4));
+    System.out.println(order_table_columns);
+
+    while (rs_order_summary.next()) {
+      String out_order_summary = String.format("%-20d %-30s %-20.2f %-20d",
+              rs_order_summary.getInt(1),
+              rs_order_summary.getString(2),
+              rs_order_summary.getDouble(3),
+              rs_order_summary.getInt(4));
+      System.out.println(out_order_summary);
+    }
+  }
+
+
+  /**
+   * Helper method to print a formatted order_contains_product table in console.
+   * @param con a connection to the database
+   * @param order_id a valid order id input
+   * @throws SQLException if any SQL operation failed
+   */
+  public void print_formatted_order_detail_table(Connection con, int order_id) throws SQLException {
+
+    CallableStatement cs_order_detail_by_id = con.prepareCall(
+            "{call getOrderProductsByOrderId(?)}"
+    );
+
+    cs_order_detail_by_id.setInt(1, order_id);
+
+    ResultSet rs_order_detail_by_id = cs_order_detail_by_id.executeQuery();
+
+    ResultSetMetaData rsmd_order_products_table = rs_order_detail_by_id.getMetaData();
+
+    String order_products_table_columns = String.format("%-20s %-20s %-20s",
+            rsmd_order_products_table.getColumnName(1),
+            rsmd_order_products_table.getColumnName(2),
+            rsmd_order_products_table.getColumnName(3));
+    System.out.println(order_products_table_columns);
+
+    while (rs_order_detail_by_id.next()) {
+      String out_order_detail = String.format("%-20d %-20d %-20d",
+              rs_order_detail_by_id.getInt(1),
+              rs_order_detail_by_id.getInt(2),
+              rs_order_detail_by_id.getInt(3));
+      System.out.println(out_order_detail);
+    }
   }
 
 
@@ -474,6 +912,8 @@ public class CustomerOperations {
    * @throws Exception if any I/O operation in console failed
    */
   public void update_cart(Connection con, Scanner sc) throws Exception {
+
+    this.print_cart();
 
     String update_cart_input = "";
 
@@ -584,10 +1024,10 @@ public class CustomerOperations {
    */
   public void update_product_quantity(Connection con, Scanner sc) throws Exception {
 
-    String update_product_id_input = "";
+    String update_product_id_input;
     int update_product_id = 0;
 
-    String updated_product_quantity_input = "";
+    String updated_product_quantity_input;
     int update_product_quantity = 0;
 
     int stock = 0;

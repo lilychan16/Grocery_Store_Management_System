@@ -137,7 +137,7 @@ public class CustomerMenuItems {
 
     sharedHelperMethods.print_formatted_customer_table(rs_customer_id);
 
-    this.customer_menu(con, sc);
+    this.customer_menu(con, sc, customer_id);
 
     rs_customer_all.close();
     cs_customer_all.close();
@@ -161,7 +161,7 @@ public class CustomerMenuItems {
    * @param sc the scanner to receive user input
    * @throws Exception if any I/O operation in console failed
    */
-  public void customer_menu(Connection con, Scanner sc) throws Exception {
+  public void customer_menu(Connection con, Scanner sc, String customer_id) throws Exception {
 
     String customer_menu_input = "";
 
@@ -169,8 +169,9 @@ public class CustomerMenuItems {
       System.out.println("\nPlease select an option:"
               + "\n1. Look up product info by product id & Add to cart"
               + "\n2. Look up product info by product name & Add to cart"
-              + "\n3. Redeem points to grocery dollars\n4. Check orders"
-              + "\n5. Check cart & Check out\n6. Go back to customer login menu\n7. Quit");
+              + "\n3. Redeem all reward points to grocery dollars\n4. Check orders"
+              + "\n5. Check cart & Check out & Update cart\n6. Go back to customer login menu"
+              + "\n7. Quit");
 
       if (sc.hasNext()) {
         customer_menu_input = sc.next();
@@ -179,19 +180,23 @@ public class CustomerMenuItems {
       switch(customer_menu_input) {
         case "1":
           customerOperations.customer_look_up_product_by_id(con, sc);
-          this.customer_after_result_menu(con, sc);
+          this.customer_after_result_menu(con, sc, customer_id);
 
         case "2":
           customerOperations.customer_look_up_product_by_name(con, sc);
-          this.customer_after_result_menu(con, sc);
+          this.customer_after_result_menu(con, sc, customer_id);
 
         case "3":
+          customerOperations.redeem_points(con, sc, customer_id);
+          this.customer_after_result_menu(con, sc, customer_id);
 
         case "4":
+          customerOperations.check_orders(con, sc, customer_id);
+          this.customer_after_result_menu(con, sc, customer_id);
 
         case "5":
-          customerOperations.check_cart_check_out(con, sc);
-          this.customer_after_result_menu(con, sc);
+          customerOperations.cart_operations(con, sc, customer_id);
+          this.customer_after_result_menu(con, sc, customer_id);
 
         case "6":
           this.customer_login_menu(con, sc);
@@ -214,7 +219,8 @@ public class CustomerMenuItems {
    * @param sc the scanner to receive user input
    * @throws Exception if any I/O operation in console failed
    */
-  public void customer_after_result_menu(Connection con, Scanner sc) throws Exception {
+  public void customer_after_result_menu(Connection con, Scanner sc, String customer_id)
+                                                                                throws Exception {
 
     String customer_after_result_input = "";
 
@@ -227,7 +233,7 @@ public class CustomerMenuItems {
 
       switch (customer_after_result_input) {
         case "1":
-          this.customer_menu(con, sc);
+          this.customer_menu(con, sc, customer_id);
 
         case "0":
           System.exit(0);
