@@ -154,7 +154,7 @@ public class CustomerMenuItems {
    *    (2) Look up product info by product name
    *    (3) Redeem points to grocery dollars
    *    (4) Check orders
-   *    (5) Check cart & Check out
+   *    (5) Check cart & Check out & Update cart
    *    (6) Go back to customer login menu
    *    (7) Quit
    * @param con a connection to the database

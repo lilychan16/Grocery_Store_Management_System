@@ -278,6 +278,8 @@ public class StoreManagerCustomerSideOperations {
    */
   public void delete_customer_by_id(Connection con, Scanner sc) throws SQLException {
 
+    this.show_all_customers(con);
+
     String customer_id = this.look_up_customer_by_id(con, sc);
     String delete_or_not = "";
 

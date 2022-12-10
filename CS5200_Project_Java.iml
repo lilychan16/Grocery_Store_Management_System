@@ -16,5 +16,14 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="module-library">
+      <library>
+        <CLASSES>
+          <root url="jar://$USER_HOME$/Library/Mobile Documents/com~apple~CloudDocs/NEU/Fall 2022/CS 5200/mysql-connector-j-8.0.31/mysql-connector-j-8.0.31.jar!/" />
+        </CLASSES>
+        <JAVADOC />
+        <SOURCES />
+      </library>
+    </orderEntry>
   </component>
 </module>

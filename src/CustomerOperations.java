@@ -422,7 +422,7 @@ public class CustomerOperations {
 
     while (!flag) {
       System.out.print("\nPlease enter 1 to confirm points redemption, "
-                        + "0 to go back to customer main menu or quit: ");
+                        + "0 for other options: ");
 
       if (sc.hasNext()) {
         redeem_points_input = sc.next();
@@ -820,7 +820,7 @@ public class CustomerOperations {
     while (!flag ) {
 
       System.out.print("\nPlease enter 1 to check more orders, "
-              + "0 to go back to customer main menu or quit: ");
+              + "0 for other options: ");
 
       if (sc.hasNext()) {
         after_check_orders_input = sc.next();

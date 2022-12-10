@@ -408,6 +408,8 @@ public class StoreManagerEmployeeSideOperations {
     String employee_type;
     String delete_or_not = "";
 
+    this.show_all_employees(con);
+
     employee_id = this.look_up_employee_by_id(con, sc);
     employee_type = this.get_employee_type_by_id(con, employee_id);
 

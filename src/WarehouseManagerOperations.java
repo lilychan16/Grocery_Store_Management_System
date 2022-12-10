@@ -180,7 +180,8 @@ public class WarehouseManagerOperations {
 
     category_list = this.get_category(con);
 
-    System.out.print("\nPlease enter a category name based on the category table above: ");
+    System.out.println("\nPlease enter a category name based on the category table above,");
+    System.out.print("input name needs to exactly match the name presented in the category table: ");
 
     if (sc.hasNextLine()) {
       category_name = sc.nextLine();
@@ -188,7 +189,8 @@ public class WarehouseManagerOperations {
 
     while (!category_list.contains(category_name.toLowerCase())) {
       System.out.println("\nYou entered invalid input. Please refer to the category table.");
-      System.out.print("Please enter a category name based on the category table above: ");
+      System.out.println("Please enter a category name based on the category table above,");
+      System.out.print("input name needs to exactly match the name presented in the category table: ");
 
       if (sc.hasNextLine()) {
         category_name = sc.nextLine();
